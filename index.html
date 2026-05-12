@@ -876,7 +876,8 @@
     padding: 10px 20px; 
     border-radius: 50px; 
     font-size: 13px; font-weight: 600; 
-    z-index: 10000; 
+    z-index: 999999999; /* Đã tăng z-index lên mức cao nhất để không bao giờ bị che */
+         
     transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1); 
     box-shadow: 0 4px 20px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.15); 
     pointer-events: none;
@@ -2186,8 +2187,8 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
             <div style="font-size:28px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;">
                 <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
             </div>
-            <div style="font-size:15px;font-weight:900;color:white;margin-bottom:8px;">Thêm Vào Màn Hình Chính</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.6;">Ứng dụng này chỉ hoạt động khi được cài đặt.<br>Vui lòng → <strong style="color:#0A84FF;">CÀI ĐẶT</strong> → <strong style="color:#30D158;">Gửi Yêu Cầu Truy Cập</strong></div>
+            <div style="font-size:15px;font-weight:900;color:white;margin-bottom:8px;">Xin Chào Quý Cửa Hàng</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.6;">Ứng dụng chỉ hoạt động khi được cài đặt.<br>Vui lòng → <strong style="color:#0A84FF;">CÀI ĐẶT</strong> → <strong style="color:#30D158;">KÍCH HOẠT ID tự động</strong></div>
         </div>
         <!-- BANNER SẢN PHẨM ĐƯỢC CHIA SẺ (hiện khi URL có ?id= hoặc ?product=) -->
         <div id="lockSharedProductBanner" style="display:none;background:linear-gradient(135deg,rgba(10,132,255,0.18),rgba(191,90,242,0.18));border:0.5px solid rgba(191,90,242,0.5);border-radius:18px;padding:14px 16px;max-width:320px;width:100%;margin-bottom:14px;">
@@ -2215,7 +2216,7 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
                 </div>
                 <div style="display:flex;align-items:flex-start;gap:9px;">
                     <span style="display:flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:50%;background:rgba(48,209,88,0.25);border:0.5px solid rgba(48,209,88,0.5);font-size:10px;font-weight:900;color:#30D158;flex-shrink:0;margin-top:1px;">2</span>
-                    <div style="font-size:10.5px;color:rgba(255,255,255,0.7);line-height:1.5;">Chọn <span style="display:inline-flex;align-items:center;gap:2px;background:rgba(48,209,88,0.2);border:0.5px solid rgba(48,209,88,0.5);border-radius:6px;padding:1px 6px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#30D158" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 17h7M17.5 14v7"/></svg><b style="color:#30D158;font-size:9px;">Thêm vào MH Chính</b></span> → <b style="color:white;">Thêm</b></div>
+                    <div style="font-size:10.5px;color:rgba(255,255,255,0.7);line-height:1.5;">Chọn <span style="display:inline-flex;align-items:center;gap:2px;background:rgba(48,209,88,0.2);border:0.5px solid rgba(48,209,88,0.5);border-radius:6px;padding:1px 6px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#30D158" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 17h7M17.5 14v7"/></svg><b style="color:#30D158;font-size:9px;">Thêm vào Màn hình chính</b></span> → <b style="color:#30D158;font-size:10.5px;">Thêm</b></div>
                 </div>
             </div>
         </div>
@@ -2234,24 +2235,28 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
                 </div>
                 <div style="display:flex;align-items:flex-start;gap:9px;">
                     <span style="display:flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:50%;background:rgba(191,90,242,0.25);border:0.5px solid rgba(191,90,242,0.5);font-size:10px;font-weight:900;color:#BF5AF2;flex-shrink:0;margin-top:1px;">2</span>
-                    <div style="font-size:10.5px;color:rgba(255,255,255,0.7);line-height:1.5;">Chọn <b style="color:#BF5AF2;">"Thêm vào Màn hình chính"</b> hoặc <b style="color:#BF5AF2;">"Cài đặt ứng dụng"</b></div>
+                    <div style="font-size:10.5px;color:rgba(255,255,255,0.7);line-height:1.5;">Chọn <b style="color:#BF5AF2;">"Thêm vào Màn hình chính"</b> hoặc <b style="color:#BF5AF2;">"Cài đặt"</b></div>
                 </div>
             </div>
         </div>
         <!-- Thống kê nhỏ dưới cùng -->
-        <div style="display:flex;gap:12px;max-width:320px;width:100%;margin-bottom:8px;">
-            <div style="flex:1;display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.1);border-radius:12px;padding:8px 10px;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#30D158" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                <span style="font-size:9.5px;color:rgba(255,255,255,0.55);font-weight:600;">Miễn phí</span>
+                <div style="display:flex; gap:8px; max-width:320px; width:100%; margin: 0 auto 12px auto; justify-content:center;">
+            
+            <div style="flex:1; display:flex; align-items:center; justify-content:center; gap:4px; background:rgba(255,255,255,0.03); border:0.5px solid rgba(255,255,255,0.08); border-radius:10px; padding:6px 2px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#30D158" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <span style="font-size:10px; color:rgba(255,255,255,0.5); font-weight:700; letter-spacing:0.2px; white-space:nowrap;">Miễn Phí</span>
             </div>
-            <div style="flex:1;display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.1);border-radius:12px;padding:8px 10px;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0A84FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                <span style="font-size:9.5px;color:rgba(255,255,255,0.55);font-weight:600;">Vài giây</span>
+            
+            <div style="flex:1; display:flex; align-items:center; justify-content:center; gap:4px; background:rgba(255,255,255,0.03); border:0.5px solid rgba(255,255,255,0.08); border-radius:10px; padding:6px 2px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0A84FF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span style="font-size:10px; color:rgba(255,255,255,0.5); font-weight:700; letter-spacing:0.2px; white-space:nowrap;">Vài Giây</span>
             </div>
-            <div style="flex:1;display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.1);border-radius:12px;padding:8px 10px;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF9F0A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                <span style="font-size:9.5px;color:rgba(255,255,255,0.55);font-weight:600;">An toàn</span>
+            
+            <div style="flex:1; display:flex; align-items:center; justify-content:center; gap:4px; background:rgba(255,255,255,0.03); border:0.5px solid rgba(255,255,255,0.08); border-radius:10px; padding:6px 2px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FF9F0A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span style="font-size:10px; color:rgba(255,255,255,0.5); font-weight:700; letter-spacing:0.2px; white-space:nowrap;">An Toàn</span>
             </div>
+
         </div>
         <div style="font-size:10px;color:rgba(255,255,255,0.25);">Không cần cài từ App Store hay CH Google Play</div>
     </div>
@@ -2290,11 +2295,21 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
             </div>
 
             <!-- Ô nhập tên cửa hàng -->
-            <input type="text" id="storeNameInput" class="form-control" style="width:100%; padding:12px; border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:15px; font-weight:500; color:white; background:rgba(0,0,0,0.3); outline:none; text-align:center; margin-bottom:10px;" placeholder="Nhập Tên Cửa Hàng...">
+            <div style="margin-bottom:20px;">
+    <input type="text" id="storeNameInput" class="form-control" placeholder="Nhập tên Cửa hàng của bạn..." 
+           style="width:100%; padding:14px; border:1px solid rgba(191, 90, 242, 0.4); border-radius:16px; background:rgba(255, 255, 255, 0.08); color:white; font-size:16px; text-align:center; outline:none; font-weight:600; box-sizing:border-box; transition: all 0.4s ease;"
+           onfocus="this.style.borderColor='rgba(10, 132, 255, 0.8)'; this.style.boxShadow='0 0 15px rgba(10, 132, 255, 0.4)';"
+           onblur="this.style.borderColor='rgba(191, 90, 242, 0.4)'; this.style.boxShadow='none';">
+    
+    <div style="font-size:11px; color:rgba(255,255,255,0.4); margin-top:10px; text-align:center; font-style:italic;">
+        (Dùng <b>ID Cửa Hàng</b> để tự động kích hoạt)
+    </div>
+</div>
 
-            <button id="reqAccessBtn" onclick="window.requestDeviceAccess()" style="width:100%; padding:14px; border-radius:14px; border:none; background:linear-gradient(135deg,rgba(10,132,255,0.9),rgba(191,90,242,0.9)); color:white; font-size:14px; font-weight:900; cursor:pointer; letter-spacing:0.5px; box-shadow:0 4px 20px rgba(10,132,255,0.3);">
-                GỬI YÊU CẦU TRUY CẬP
-            </button>
+<button id="reqAccessBtn" onclick="window.requestDeviceAccess()" 
+        style="width:100%; padding:14px; border-radius:14px; border:none; background:linear-gradient(135deg,rgba(10,132,255,0.9),rgba(191,90,242,0.9)); color:white; font-size:14px; font-weight:900; cursor:pointer; letter-spacing:0.5px; box-shadow:0 4px 20px rgba(10,132,255,0.3); margin:0;">
+    KÍCH HOẠT ID
+</button>
 
             <div id="reqAccessStatus" style="margin-top:12px; text-align:center; font-size:12px; color:rgba(255,255,255,0.45); display:none;">
                 <div style="display:flex;align-items:center;justify-content:center;gap:8px;">
@@ -2755,7 +2770,8 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
                     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>
                     Gửi Zalo
                 </button>
-                <button id="btnKiemTonNhanh" onclick="window.kiemTonNhanh()" style="flex: 1; margin: 0; padding:12px 8px; border-radius:12px; border:0.8px solid rgba(255,159,10,0.6); background:linear-gradient(135deg,rgba(255,159,10,0.15),rgba(255,80,0,0.12)); color:white; font-weight:800; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;">
+                <button id="btnKiemTonNhanh" onclick="window.kiemTonNhanh()" style="flex: 1; margin: 0; padding:12px 8px; border-radius:30px; border:0.8px solid rgba(255,159,10,0.6); background:linear-gradient(135deg,rgba(255,159,10,0.15),rgba(255,80,0,0.12)); color:white; font-weight:800; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px;">
+                    
                     <svg width="15" height="15" fill="none" stroke="#FF9F0A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
                     <span style="color:#FF9F0A;">Kiểm Tồn Nhanh</span>
                 </button>
@@ -3399,16 +3415,20 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
         (function() {
             var lockEl = document.getElementById('browserLockScreen');
             if (!lockEl || lockEl.style.display === 'none') return;
-            var params = new URLSearchParams(window.location.search);
-            var productParam = params.get('id') || params.get('product');
-            if (productParam) {
-                var banner = document.getElementById('lockSharedProductBanner');
-                var codeEl = document.getElementById('lockSharedCode');
-                if (banner && codeEl) {
-                    codeEl.textContent = productParam;
-                    banner.style.display = 'block';
-                }
-            }
+                var params = new URLSearchParams(window.location.search);
+    var codeParam = params.get('code');
+    var productParam = params.get('id') || params.get('product');
+    
+    var displayCode = codeParam || productParam;
+
+    if (displayCode) {
+        var banner = document.getElementById('lockSharedProductBanner');
+        var codeEl = document.getElementById('lockSharedCode');
+        if (banner && codeEl) {
+            codeEl.textContent = displayCode;
+            banner.style.display = 'block';
+        }
+    }
         })();
 
         window._lockCopyCode = function() {
@@ -3420,53 +3440,97 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
                 document.body.appendChild(t); t.focus(); t.select();
                 try { document.execCommand('copy'); } catch(e) {}
                 document.body.removeChild(t);
-                window.showToast('✅ Đã copy mã: ' + code + ' — Hãy mở App ngoài màn hình chính và dán mã này vào thanh tìm kiếm');
+                window.showToast('Đã copy mã: ' + code + ' — Hãy mở App ngoài màn hình chính và dán mã này vào thanh tìm kiếm');
             };
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(code).then(function() {
-                    window.showToast('✅ Đã copy mã: ' + code + ' — Hãy mở App ngoài màn hình chính và dán mã này vào thanh tìm kiếm');
+                    window.showToast('Đã copy mã: ' + code + ' — Hãy mở App ngoài màn hình chính và dán mã này vào thanh tìm kiếm');
                 }).catch(function() { doCopy(); });
             } else { doCopy(); }
         };
 
         // ===== KIỂM TỒN NHANH: GỬI TELEGRAM =====
-        window.kiemTonNhanh = function() {
-            var p = window.products.find(function(x){ return x.id === window.viewingId; });
-            if (!p) { window.showToast('Không tìm thấy sản phẩm!'); return; }
-            var storeName = localStorage.getItem('pml_store_name') || window.appSettings.storeName || 'Cửa hàng';
-            var productName = p.name || '';
-            var productCode = p.code || '';
-            var specs = p.specs || '';
-            var price = '';
-            if (p.priceType === 'multi' && p.priceMulti) {
-                var midName = p.priceMulti.midType === 'Đậm' ? 'Đậm' : 'Viền';
-                price = 'Thân: ' + p.priceMulti.than + 'k | ' + midName + ': ' + p.priceMulti.midPrice + 'k | Điểm: ' + p.priceMulti.diem + 'k';
-            } else {
-                price = (p.price || '') + 'k/m²';
-            }
-            var imgUrl = p.img1 || '';
-            var caption = '🏬 Cửa hàng: ' + storeName + '\n🧱 SP: ' + productName + '\n✨ MS: ' + productCode + '\n📐 QC: ' + specs + '\n💰 Giá: ' + price;
-            var apiUrl = 'https://api.telegram.org/bot' + TELEGRAM_TOKEN + '/sendPhoto';
-            var body = { chat_id: TELEGRAM_CHAT_ID, caption: caption };
-            if (imgUrl) { body.photo = imgUrl; } else { 
-                // Không có ảnh → dùng sendMessage
-                fetch('https://api.telegram.org/bot' + TELEGRAM_TOKEN + '/sendMessage', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: caption })
-                }).then(function(){ window.showToast('⚡ Gửi yêu cầu kiểm tồn cho Phục thành công'); }).catch(function(){ window.showToast('⚠️ Lỗi gửi Telegram!'); });
-                return;
-            }
-            fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            }).then(function(r){ return r.json(); })
-            .then(function(data){
-                if (data.ok) { window.showToast('⚡ Gửi yêu cầu kiểm tồn cho Phục thành công'); }
-                else { window.showToast('⚠️ Lỗi: ' + (data.description || 'Telegram error')); }
-            }).catch(function(){ window.showToast('⚠️ Lỗi kết nối Telegram!'); });
-        };
+        window._isCheckingTon = false; // Biến chống click liên tục (chống spam Telegram)
+window.kiemTonNhanh = function() {
+    if (window._isCheckingTon) return; // Đang gửi thì chặn lại
+
+    const p = window.products.find(x => x.id === window.viewingId);
+    if (!p) return;
+
+    const btn = document.getElementById('btnKiemTonNhanh');
+    const originalText = btn.innerHTML; // Lưu lại nội dung gốc của nút
+
+    // Đổi giao diện nút thành "Đang gửi..."
+    btn.innerHTML = `<svg style="animation: spinBtnBusy 1s linear infinite;" width="15" height="15" fill="none" stroke="#FF9F0A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg> <span style="color:#FF9F0A;">Đang gửi...</span>`;
+    btn.style.opacity = '0.7';
+    window._isCheckingTon = true;
+
+    // THÔNG TIN CẦN GỬI
+    let storeName = "Khách Hàng (Chưa ĐN)";
+    let storeCode = "GUEST";
+    if (window.currentStoreCode && window.currentStoreCode !== 'guest') {
+        const ag = window.agencies.find(a => a.code === window.currentStoreCode);
+        if (ag) {
+            storeName = ag.name;
+            storeCode = ag.code;
+        } else if (window.isAdmin) {
+            storeName = "Admin";
+            storeCode = "ADMIN";
+        }
+    }
+
+    // TỰ ĐỘNG TÁI SỬ DỤNG CẤU HÌNH BẠN ĐÃ CÀI ĐẶT SẴN TRONG HTML APP:
+    const botToken = typeof TELEGRAM_TOKEN !== 'undefined' ? TELEGRAM_TOKEN : '';
+    const chatId = typeof TELEGRAM_CHAT_ID !== 'undefined' ? TELEGRAM_CHAT_ID : '';
+
+    const message = `🔔 **YÊU CẦU KIỂM TỒN NHANH**\n` +
+                    `📦 **Sản phẩm:** ${p.code} (${p.size})\n` +
+                    `🏷 **Tên SP:** ${p.name}\n` +
+                    `👤 **Khách hàng:** ${storeName} (${storeCode})\n` +
+                    `⏰ **Thời gian:** ${new Date().toLocaleString('vi-VN')}`;
+
+    if (!botToken || !chatId) {
+        setTimeout(() => {
+            finishKiemTon(btn, originalText);
+            window.showToast("Lỗi: Không tìm thấy Token Telegram đã cấu hình!");
+        }, 1000);
+        return;
+    }
+
+    const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+    const payload = {
+        chat_id: chatId,
+        text: message,
+        parse_mode: 'Markdown'
+    };
+
+    fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        finishKiemTon(btn, originalText);
+        if (data.ok) {
+            window.closeModal('detailModal'); // Đóng bảng chi tiết sản phẩm
+            window.showToast("Đã gửi yêu cầu kiểm tồn đến Phục!");
+        } else {
+            window.showToast("Lỗi gửi Telegram. Thử lại sau!");
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        finishKiemTon(btn, originalText);
+        window.showToast("Lỗi kết nối mạng, không thể gửi yêu cầu!");
+    });
+};
+
+function finishKiemTon(btn, originalText) {
+    btn.innerHTML = originalText;
+    btn.style.opacity = '1';
+    window._isCheckingTon = false;
+}
 
 
         (function() {
@@ -4044,15 +4108,35 @@ window.appConfirm = function(title, msg, callback) { document.getElementById('co
 window.closeModal = function(id) {
     const el = document.getElementById(id);
     if (el) el.classList.remove('show');
-    if (!document.querySelector('.modal-overlay.show')) {
+    
+    // Kiểm tra xem còn modal nào đang mở (không tính các modal ẩn hoặc alert)
+    const anyModalOpen = Array.from(document.querySelectorAll('.modal-overlay')).some(m => 
+        m.classList.contains('show') && m.id !== 'customAlertModal' && m.id !== 'customConfirmModal' && m.id !== 'toast'
+    );
+
+    if (!anyModalOpen) {
         document.body.classList.remove('modal-open');
     }
-    // Khôi phục vị trí cuộn khi đóng bảng chi tiết sản phẩm
-    if (id === 'detailModal' && window._savedScrollY !== undefined) {
+    
+    // LUÔN KHÔI PHỤC VỊ TRÍ CUỘN KHI ĐÓNG BẤT KỲ MODAL NÀO (KỂ CẢ MÁY TÍNH GẠCH)
+    // Nếu vẫn còn modal khác đang mở (VD: calcModal đóng nhưng detailModal vẫn mở), KHÔNG khôi phục cuộn.
+    if (!anyModalOpen && window._savedScrollY !== undefined) {
         requestAnimationFrame(function() {
             window.scrollTo({ top: window._savedScrollY, behavior: 'instant' });
         });
     }
+};
+
+// ĐÈ LÊN HÀM OPEN MODAL ĐỂ LƯU VỊ TRÍ CUỘN CHÍNH XÁC KHI MỞ MÁY TÍNH
+var _origOpenModalForScroll = window.openModal;
+window.openModal = function(id) {
+    // Chỉ lưu vị trí cuộn nếu đây là modal ĐẦU TIÊN được mở (ví dụ detailModal)
+    // Nếu detailModal đang mở và ta mở tiếp calcModal, thì không ghi đè _savedScrollY
+    const anyModalOpen = Array.from(document.querySelectorAll('.modal-overlay')).some(m => m.classList.contains('show'));
+    if (!anyModalOpen) {
+         window._savedScrollY = window.scrollY;
+    }
+    _origOpenModalForScroll(id);
 };
 
         window.openLightbox = function(src) {
@@ -4862,14 +4946,32 @@ window.updateWheelPointsDisplay = function(store) {
 };
 
         window.checkAndResetMonthly = function() {
-            const now = new Date(); const currentMonth = now.getMonth(); const currentYear = now.getFullYear();
-            const lastReset = JSON.parse(localStorage.getItem('pml_last_reset')) || { month: -1, year: -1 };
-            if (currentMonth !== lastReset.month || currentYear !== lastReset.year) {
-                window.agencies.forEach(a => { a.bought = 0; a.points = 0; a.debt = 0; });
-                localStorage.setItem('pml_last_reset', JSON.stringify({ month: currentMonth, year: currentYear }));
-                window.saveAgenciesToDB();
-            }
-        };
+    // CHỈ CHO PHÉP ADMIN RESET THÁNG - NGĂN CHẶN KHÁCH VÀO LÀM MẤT DATA
+    if (!window.isAdmin) return;
+    
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const lastResetStr = localStorage.getItem('pml_last_reset');
+    
+    // Nếu là thiết bị mới vào lần đầu, chỉ lưu thời gian, KHÔNG ĐƯỢC reset database
+    if (!lastResetStr) {
+        localStorage.setItem('pml_last_reset', JSON.stringify({ month: currentMonth, year: currentYear }));
+        return;
+    }
+    
+    const lastReset = JSON.parse(lastResetStr);
+    
+    if (currentMonth !== lastReset.month || currentYear !== lastReset.year) {
+        window.agencies.forEach(a => {
+            a.bought = 0;
+            a.points = 0;
+            // BỎ XÓA NỢ: a.debt = 0; (Công nợ không thể tự mất mỗi tháng được)
+        });
+        localStorage.setItem('pml_last_reset', JSON.stringify({ month: currentMonth, year: currentYear }));
+        window.saveAgenciesToDB();
+    }
+};
 
 
         /* ============================================================
@@ -4902,18 +5004,21 @@ window.updateWheelPointsDisplay = function(store) {
         window._redeemSelected = null;
 
         window.openRedeemModal = function() {
-            if (!window.currentStoreCode) return;
-            const ag = window.agencies.find(a => a.code === window.currentStoreCode);
-            if (!ag) return;
+    if (!window.currentStoreCode) return;
+    const ag = window.agencies.find(a => a.code === window.currentStoreCode);
+    if (!ag) return;
+    
+    // Tự động tắt chớp sáng nút nếu khách mở bảng Đổi Điểm
+    window.confirmRedeemNotify();
 
-            const pts = ag.points || 0;
-            const bought = Math.floor(ag.bought || 0);
-            const rankInfo = window.getRankInfo(bought);
-            const myRankOrder = RANK_ORDER[rankInfo.init] || 0;
-            const isVipMember = ag.isVip === true; // Có tham gia thăng hạng không
+    const pts = ag.points || 0;
+    const bought = Math.floor(ag.bought || 0);
+    const rankInfo = window.getRankInfo(bought);
+    const myRankOrder = RANK_ORDER[rankInfo.init] || 0;
+    const isVipMember = ag.isVip === true;
 
-            document.getElementById('redeemCurrentPts').textContent = pts.toLocaleString('vi-VN');
-            window._redeemSelected = null;
+    document.getElementById('redeemCurrentPts').textContent = pts.toLocaleString('vi-VN');
+    window._redeemSelected = null;
 
             // Render các lựa chọn quà theo hạng
             const rewards = window.redeemConfig.rewards;
@@ -5102,14 +5207,20 @@ window.updateWheelPointsDisplay = function(store) {
         };
 
         window.confirmRedeemNotify = function() {
-            const notifyEl = document.getElementById('redeemApproveNotify');
-            if (notifyEl) notifyEl.style.display = 'none';
-            const hintEl = document.getElementById('redeemHistoryHint');
-            if (hintEl) hintEl.style.display = 'block';
-            // Tắt hiệu ứng nhấp nháy khi đã xem
-            var chip = document.getElementById('redeemChipWidget');
-            if (chip) chip.classList.remove('redeem-notify');
-        };
+    const notifyEl = document.getElementById('redeemApproveNotify');
+    if (notifyEl) notifyEl.style.display = 'none';
+    const hintEl = document.getElementById('redeemHistoryHint');
+    if (hintEl) hintEl.style.display = 'block';
+    
+    // Tắt hiệu ứng nhấp nháy khi đã xem
+    var chip = document.getElementById('redeemChipWidget');
+    if (chip) chip.classList.remove('redeem-notify');
+    
+    // Cập nhật Firebase để tắt chớp sáng nút trên tất cả thiết bị của khách này
+    if (window.currentStoreCode && dbRef) {
+        dbRef.child('phucminhlong_redeem_notify/' + window.currentStoreCode).update({ seen: true });
+    }
+};
 
         window.openRedeemHistoryModal = function() {
             const ag = window.agencies.find(a => a.code === window.currentStoreCode);
@@ -5170,7 +5281,8 @@ window.updateWheelPointsDisplay = function(store) {
                         }
                     }
                     // Đánh dấu đã xem
-                    firebase.database().ref('phucminhlong_redeem_notify/' + storeCode).update({ seen: true });
+                    // Đã chuyển lệnh đánh dấu 'seen: true' vào hàm window.confirmRedeemNotify() 
+// để nút Đổi Điểm bên khách tiếp tục nhấp nháy cho đến khi họ bấm Xác Nhận.
                     // ── Đồng bộ voucherCode vào redeemHistory local từ Firebase (fix mất mã) ──
                     if (val.voucherCode && !val.rejected && dbRef) {
                         firebase.database().ref('phucminhlong_redeem_requests')
@@ -5648,6 +5760,39 @@ window.updateWheelPointsDisplay = function(store) {
                 });
             });
         };
+        window.saveDeviceLimit = function(storeCode) {
+    var input = document.getElementById('limit_' + storeCode);
+    if (!input) return;
+    var newLimit = parseInt(input.value);
+    
+    if (isNaN(newLimit) || newLimit < 1) {
+        window.showToast('Số lượng thiết bị không hợp lệ!');
+        return;
+    }
+
+    // Tìm index của đại lý trong mảng
+    var idx = window.agencies.findIndex(function(a) { return a.code === storeCode; });
+    
+    if (idx !== -1) {
+        // Lưu vào RAM
+        window.agencies[idx].deviceLimit = newLimit;
+        
+        // Lưu lên Firebase
+        if (typeof dbRef !== 'undefined' && dbRef) {
+            dbRef.child('agencies/' + idx).update({ deviceLimit: newLimit })
+            .then(function() {
+                window.showToast('Đã cấp phép cho ' + storeCode + ' dùng tối đa ' + newLimit + ' thiết bị!');
+                // Đổi đồng loạt số hiển thị trên các máy của đại lý này (nếu có trùng nhiều máy)
+                var allInputs = document.querySelectorAll('input[id="limit_' + storeCode + '"]');
+                allInputs.forEach(function(inp) { inp.value = newLimit; });
+            })
+            .catch(function() { 
+                window.showToast('Lỗi khi lưu hạn mức!'); 
+            });
+        }
+    }
+};
+
 
         window.loadApprovedDevicesList = function() {
             var listEl = document.getElementById('approvedDevicesList');
@@ -5663,21 +5808,34 @@ window.updateWheelPointsDisplay = function(store) {
                     listEl.innerHTML = '<div style="text-align:center;padding:12px;color:rgba(255,255,255,0.2);font-size:12px;">Chưa có thiết bị nào được cấp quyền</div>';
                     return;
                 }
-                listEl.innerHTML = Object.keys(data).map(function(devId) {
-                    var d = data[devId];
-                    var storeInfo = (window.agencies || []).find(function(a){ return a.code === d.storeId; });
-                    var storeName = storeInfo ? storeInfo.name : (d.storeId || '?');
-                    var statusColor = d.status ? '#30D158' : '#FF453A';
-                    var statusText = d.status ? 'Đang hoạt động' : 'Bị thu hồi';
-                    return '<div style="background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.1);border-radius:12px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;">'
-                        + '<div style="flex:1;min-width:0;">'
-                        + '<div style="font-size:12px;font-weight:900;color:#1A91FF;font-family:monospace;letter-spacing:1px;">' + devId + '</div>'
-                        + '<div style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:2px;">' + storeName + '</div>'
-                        + '<div style="font-size:9px;color:' + statusColor + ';font-weight:700;margin-top:2px;">' + statusText + '</div>'
-                        + '</div>'
-                        + '<button onclick="window.revokeDevice(\'' + devId + '\')" style="background:rgba(255,69,58,0.12);border:0.5px solid rgba(255,69,58,0.3);border-radius:8px;color:#FF453A;font-size:10px;font-weight:800;padding:5px 10px;cursor:pointer;flex-shrink:0;">Thu Hồi</button>'
-                        + '</div>';
-                }).join('');
+                            listEl.innerHTML = Object.keys(data).map(function(devId) {
+                var d = data[devId];
+                var storeInfo = (window.agencies || []).find(function(a){ return a.code === d.storeId; });
+                var storeName = storeInfo ? storeInfo.name : (d.storeId || '?');
+                var statusColor = d.status ? '#30D158' : '#FF453A';
+                var statusText = d.status ? 'Đang hoạt động' : 'Bị thu hồi';
+                
+                // Lấy hạn mức hiện tại của đại lý này
+                var agencyLimit = storeInfo && storeInfo.deviceLimit ? storeInfo.deviceLimit : 1;
+                
+                // Chỉ hiển thị ô chỉnh hạn mức nếu thiết bị này thuộc một đại lý hợp lệ
+                var limitHtml = storeInfo ? 
+                    '<div style="display:flex; align-items:center; gap:5px; margin-top:8px;">' +
+                        '<span style="font-size:10px; color:#8e8e93; font-weight:600;">Máy tối đa:</span>' +
+                        '<input type="number" id="limit_' + d.storeId + '" value="' + agencyLimit + '" style="width:40px; background:rgba(255,255,255,0.1); border:1px solid #333; color:white; border-radius:4px; text-align:center; font-size:11px; padding:3px; outline:none;">' +
+                        '<button onclick="window.saveDeviceLimit(\'' + d.storeId + '\')" style="background:rgba(10,132,255,0.2); color:#1A91FF; border:1px solid rgba(10,132,255,0.5); padding:3px 8px; border-radius:4px; font-size:10px; font-weight:800; cursor:pointer;">Lưu Hạn Mức</button>' +
+                    '</div>' : '';
+
+                return '<div style="background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;">' +
+                    '<div style="flex:1;min-width:0;">' +
+                        '<div style="font-size:13px;font-weight:900;color:#1A91FF;font-family:monospace;letter-spacing:1px;">' + devId + '</div>' +
+                        '<div style="font-size:12px;color:rgba(255,255,255,0.8);margin-top:2px;font-weight:600;">' + storeName + '</div>' +
+                        '<div style="font-size:10px;color:' + statusColor + ';font-weight:700;margin-top:2px;">' + statusText + '</div>' +
+                        limitHtml +
+                    '</div>' +
+                    '<button onclick="window.revokeDevice(\'' + devId + '\')" style="background:rgba(255,69,58,0.12);border:0.5px solid rgba(255,69,58,0.3);border-radius:8px;color:#FF453A;font-size:11px;font-weight:800;padding:6px 12px;cursor:pointer;flex-shrink:0;">Thu Hồi</button>' +
+                '</div>';
+            }).join('');
             }).catch(function() {
                 listEl.innerHTML = '<div style="text-align:center;padding:12px;color:rgba(255,69,58,0.7);font-size:12px;">Lỗi tải dữ liệu</div>';
             });
@@ -8083,7 +8241,7 @@ if(document.getElementById('pCdMin')) document.getElementById('pCdMin').value = 
             }
 
             const shipText = window.isRetailMode ? '' : `\n🚛Giao CH/Chành: ${toBold('+' + shipFee + 'k/m')}`;
-            const productLink = window.location.origin + window.location.pathname + '?id=' + p.id;
+const productLink = window.location.origin + window.location.pathname + '?id=' + p.id + '&code=' + encodeURIComponent(p.code);
             let shareText = '';
 
             if(window.isAdmin) {
@@ -8605,12 +8763,16 @@ function pmlDoLogin(code) {
             if (titleEl) titleEl.textContent = banner.title || 'Thông Báo Quan Trọng';
             if (msgEl) msgEl.innerHTML = (banner.message || '').replace(/\n/g, '<br>');
             bannerEl.style.display = 'flex';
-            window._currentPopupVersion = String(banner.version_id);
-        }).catch(function(){});
+                            window._currentPopupVersion = String(banner.version_id);
+            }).catch(function(){});
+        }
+        
+        // LUÔN BẬT LẮNG NGHE ĐỂ ĐÁ CỬA HÀNG RA NGAY KHI BỊ THU HỒI
+        if (code !== 'admin') {
+            window.startDeviceApprovalListener();
+        }
     }
-}
-
-window.pmlDoLogin = pmlDoLogin;
+    window.pmlDoLogin = pmlDoLogin;
 
 // ═══════════════════════════════════════════════════
 // ĐĂNG NHẬP ADMIN BYPASS — đầy đủ quyền quản trị
@@ -8650,31 +8812,90 @@ window.requestDeviceAccess = function() {
     var btn = document.getElementById('reqAccessBtn');
     var status = document.getElementById('reqAccessStatus');
     var storeName = nameInput ? nameInput.value.trim() : '';
-    if (!storeName) { window.showToast && window.showToast('Vui lòng nhập tên cửa hàng!'); return; }
-    if (btn) { btn.textContent = 'Đang chờ duyệt...'; btn.disabled = true; btn.style.opacity = '0.6'; }
-    if (status) status.style.display = 'block';
-    if (TELEGRAM_TOKEN && TELEGRAM_CHAT_ID) {
-        var msgText = '🔔 YÊU CẦU TRUY CẬP APP\n━━━━━━━━━━━━━━━━\n🏪 Cửa hàng: ' + storeName + '\n📱 Thiết bị: ' + (navigator.userAgent.includes('iPhone') ? 'iPhone' : navigator.userAgent.includes('Android') ? 'Android' : 'Máy tính') + '\n⏰ Lúc: ' + new Date().toLocaleString('vi-VN') + '\n━━━━━━━━━━━━━━━━\n🔑 Mã máy (copy để duyệt):\n\n`' + PML_DEVICE_ID + '`';
-        fetch('https://api.telegram.org/bot' + TELEGRAM_TOKEN + '/sendMessage', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: String(TELEGRAM_CHAT_ID), text: msgText })
-        }).then(function(res){ return res.json(); }).then(function(data){
-            if (!data.ok) {
-                console.warn('Telegram lỗi:', data.description);
-                // Hiện lỗi chi tiết để dễ debug
-                var errMsg = data.description || 'Không rõ lỗi';
-                if (window.showToast) window.showToast('⚠️ Telegram: ' + errMsg.substring(0, 60));
-            } else {
-                console.log('✅ Telegram: Gửi thành công!');
-            }
-        }).catch(function(e){ 
-            console.warn('Telegram fetch lỗi:', e); 
-            if (window.showToast) window.showToast('⚠️ Không kết nối được Telegram: ' + (e.message || '').substring(0, 40));
-        });
+
+    if (!storeName) {
+        if (window.showToast) window.showToast('Vui lòng nhập Tên hoặc Mã cửa hàng!');
+        return;
     }
-    localStorage.setItem('pml_pending_store_name', storeName);
-    window.startDeviceApprovalListener();
+
+    if (btn) {
+        btn.textContent = 'Đang xử lý...';
+        btn.disabled = true;
+        btn.style.opacity = '0.6';
+    }
+    if (status) status.style.display = 'block';
+
+    if (typeof dbRef !== 'undefined' && dbRef) {
+        dbRef.child('agencies').once('value').then(function(snap) {
+            var agData = snap.val();
+            var agenciesList = agData ? (Array.isArray(agData) ? agData : Object.values(agData)) : window.agencies;
+            
+            // So sánh xem có khớp mã cửa hàng không
+            var matchedAg = agenciesList.find(function(a) { 
+                return a && a.code && a.code.toUpperCase() === storeName.toUpperCase(); 
+            });
+
+            if (matchedAg) {
+                // ĐÚNG MÃ -> QUÉT XEM ĐÃ CÓ BAO NHIÊU MÁY ĐANG HOẠT ĐỘNG
+                dbRef.child('approved_devices').once('value').then(function(devSnap) {
+                    var allDevices = devSnap.val() || {};
+                    var activeCount = 0;
+                    
+                    for (var key in allDevices) {
+                        if (allDevices[key].storeId === matchedAg.code && allDevices[key].status === true) {
+                            activeCount++;
+                        }
+                    }
+                    
+                    // Lấy hạn mức riêng của Đại lý, mặc định là 1 nếu chưa cài
+                    var limit = matchedAg.deviceLimit ? parseInt(matchedAg.deviceLimit) : 1;
+                    
+                    if (activeCount >= limit) {
+                        if (window.showToast) window.showToast('⚠️ Vượt quá hạn mức ' + limit + ' thiết bị. Đang đợi Admin xác minh...');
+                        sendTelegramReq(storeName, "⚠️ CẢNH BÁO VƯỢT HẠN MỨC (" + limit + " máy): Khách nhập đúng mã " + matchedAg.code + " nhưng đã hết slot!");
+                    } else {
+                        // CÒN SLOT -> DUYỆT TỰ ĐỘNG
+                        dbRef.child('approved_devices/' + PML_DEVICE_ID).set({
+                            status: true,
+                            storeId: matchedAg.code,
+                            approvedAt: Date.now(),
+                            approvedBy: 'auto_system'
+                        }).then(function() {
+                            if (window.showToast) window.showToast('Kích hoạt tự động thành công!');
+                        });
+                        window.startDeviceApprovalListener();
+                    }
+                }).catch(function() {
+                    sendTelegramReq(storeName, "");
+                });
+            } else {
+                // NHẬP SAI MÃ HOẶC KHÁCH LẠ -> DUYỆT THỦ CÔNG
+                sendTelegramReq(storeName, "");
+            }
+        }).catch(function() {
+            sendTelegramReq(storeName, "");
+        });
+    } else {
+        sendTelegramReq(storeName, "");
+    }
+
+    function sendTelegramReq(storeNameInput, warningMsg) {
+        if (typeof TELEGRAM_TOKEN !== 'undefined' && typeof TELEGRAM_CHAT_ID !== 'undefined') {
+            var msgText = '🔔 YÊU CẦU TRUY CẬP APP\n━━━━━━━━━━━━━━━━\n' + 
+                          (warningMsg ? warningMsg + '\n━━━━━━━━━━━━━━━━\n' : '') +
+                          '🏪 Khách nhập: ' + storeNameInput + '\n' +
+                          '📱 Thiết bị: ' + (navigator.userAgent.includes('iPhone') ? 'iPhone' : navigator.userAgent.includes('Android') ? 'Android' : 'Máy tính') + '\n' +
+                          '⏰ Lúc: ' + new Date().toLocaleString('vi-VN') + '\n━━━━━━━━━━━━━━━━\n🔑 Mã máy:\n\n`' + PML_DEVICE_ID + '`';
+
+            fetch('https://api.telegram.org/bot' + TELEGRAM_TOKEN + '/sendMessage', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: String(TELEGRAM_CHAT_ID), text: msgText })
+            }).then(function(res){ return res.json(); }).catch(function(){});
+        }
+        localStorage.setItem('pml_pending_store_name', storeNameInput);
+        window.startDeviceApprovalListener();
+    }
 };
 
 // ═══════════════════════════════════════════════════
