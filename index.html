@@ -2248,12 +2248,24 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
     <!-- MÀN HÌNH KHÓA PWA: BẮT BUỘC CÀI ĐẶT APP TRƯỚC KHI DÙNG -->
     <div id="browserLockScreen" style="display:none;position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,0.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;">
         <img src="logochao.png" alt="Logo" style="width:90px;height:90px;object-fit:contain;border-radius:20px;margin-bottom:18px;filter:drop-shadow(0 0 20px rgba(10,132,255,0.5));">
-        <div style="font-size:18px;font-weight:900;background:linear-gradient(90deg,#93c5fd,#f0f4ff,#93c5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;">PHỤC MINH LONG</div>
+        <div style="font-size:18px;font-weight:900;background:linear-gradient(90deg,#93c5fd,#f0f4ff,#93c5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;">PHỤC MINH LONG CẦN THƠ</div>
         <div style="font-size:13px;color:rgba(255,255,255,0.55);margin-bottom:24px;">Hệ Thống Phân Phối Gạch Men</div>
-        <div style="background:rgba(10,132,255,0.12);border:1px solid rgba(10,132,255,0.3);border-radius:20px;padding:20px;max-width:320px;width:100%;margin-bottom:20px;">
+        <div style="background:rgba(10,132,255,0.12);border:1px solid rgba(10,132,255,0.3);border-radius:20px;padding:20px;max-width:320px;width:100%;margin-bottom:16px;">
             <div style="font-size:28px;margin-bottom:10px;">📱</div>
             <div style="font-size:15px;font-weight:900;color:white;margin-bottom:8px;">Thêm Vào Màn Hình Chính</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.6;">Ứng dụng này chỉ hoạt động khi được cài đặt.<br>Vui lòng bấm <strong style="color:#0A84FF;">⬆ Chia sẻ</strong> → <strong style="color:#30D158;">Thêm vào Màn hình chính</strong> để tiếp tục.</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.6;">Ứng dụng này chỉ hoạt động khi được cài đặt.<br>Vui lòng → <strong style="color:#0A84FF;">CÀI ĐẶT</strong> → <strong style="color:#30D158;">Gửi Yêu Cầu Truy Cập</strong></div>
+        </div>
+        <!-- Hướng dẫn iOS -->
+        <div style="background:rgba(10,132,255,0.08);border:0.5px solid rgba(10,132,255,0.25);border-radius:16px;padding:14px;max-width:320px;width:100%;margin-bottom:10px;">
+            <div style="font-size:11px;font-weight:800;color:#60a5fa;margin-bottom:10px;display:flex;align-items:center;gap:5px;">🍎 iPhone / iPad (Safari)</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <div style="font-size:10px;color:rgba(255,255,255,0.55);line-height:1.5;">① Bấm <b style="color:#0A84FF;">⬆ Chia sẻ</b> ở thanh dưới Safari → ② Bấm <b style="color:#30D158;">Thêm vào Màn hình Chính → Thêm</b></div>
+            </div>
+        </div>
+        <!-- Hướng dẫn Android -->
+        <div style="background:rgba(48,209,88,0.08);border:0.5px solid rgba(48,209,88,0.25);border-radius:16px;padding:14px;max-width:320px;width:100%;margin-bottom:16px;">
+            <div style="font-size:11px;font-weight:800;color:#30D158;margin-bottom:10px;display:flex;align-items:center;gap:5px;">🤖 Android (Chrome)</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.55);line-height:1.5;">① Bấm nút <b style="color:#30D158;">⋮</b> (3 chấm) góc trên phải trình duyệt → ② Chọn <b style="color:#30D158;">"Thêm vào Màn hình chính"</b> hoặc <b style="color:#30D158;">"Cài đặt ứng dụng"</b></div>
         </div>
         <div style="font-size:11px;color:rgba(255,255,255,0.3);">Chỉ mất vài giây — miễn phí — không cần cài từ App Store</div>
     </div>
@@ -2955,9 +2967,10 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
 
             <!-- TAB BAR -->
             <div id="agencyTabBar" style="display:flex; gap:4px; margin:10px 0 0; flex-shrink:0; border-radius:20px; background:rgba(255,255,255,0.06); border:0.5px solid rgba(255,255,255,0.12); padding:3px; overflow:hidden;">
-        <button id="tabBtnMain" onclick="window.switchAgencyTab('main')" style="flex:1; padding:9px 0; border-radius:17px; border:none; font-size:12px; font-weight:800; cursor:pointer; transition:all 0.3s; background:transparent; color:rgba(255,255,255,0.5); box-shadow:none;">+ Thêm Mới</button>
-    <button id="tabBtnList" onclick="window.switchAgencyTab('list')" style="flex:1; padding:9px 0; border-radius:17px; border:none; font-size:12px; font-weight:800; cursor:pointer; transition:all 0.3s; background:transparent; color:rgba(255,255,255,0.5); box-shadow:none;">DS Đại Lý</button>
-    <button id="tabBtnRedeem" onclick="window.switchAgencyTab('redeem')" style="flex:1; padding:9px 0; border-radius:17px; border:none; font-size:12px; font-weight:800; cursor:pointer; transition:all 0.3s; background:transparent; color:rgba(255,255,255,0.5); position:relative; display:flex; align-items:center; justify-content:center; gap:5px;">Đổi Điểm <span id="redeemBadge" style="display:none; background:#ef4444; color:white; font-size:9px; font-weight:900; min-width:16px; height:16px; border-radius:50%; align-items:center; justify-content:center; padding:0 2px;">0</span></button>
+        <button id="tabBtnMain" onclick="window.switchAgencyTab('main')" style="flex:1; padding:9px 0; border-radius:17px; border:none; font-size:11px; font-weight:800; cursor:pointer; transition:all 0.3s; background:transparent; color:rgba(255,255,255,0.5); box-shadow:none;">+ Thêm Mới</button>
+    <button id="tabBtnDevice" onclick="window.switchAgencyTab('device')" style="flex:1; padding:9px 0; border-radius:17px; border:none; font-size:11px; font-weight:800; cursor:pointer; transition:all 0.3s; background:transparent; color:rgba(255,255,255,0.5); box-shadow:none;">QL Thiết Bị</button>
+    <button id="tabBtnList" onclick="window.switchAgencyTab('list')" style="flex:1; padding:9px 0; border-radius:17px; border:none; font-size:11px; font-weight:800; cursor:pointer; transition:all 0.3s; background:transparent; color:rgba(255,255,255,0.5); box-shadow:none;">DS Đại Lý</button>
+    <button id="tabBtnRedeem" onclick="window.switchAgencyTab('redeem')" style="flex:1; padding:9px 0; border-radius:17px; border:none; font-size:11px; font-weight:800; cursor:pointer; transition:all 0.3s; background:transparent; color:rgba(255,255,255,0.5); position:relative; display:flex; align-items:center; justify-content:center; gap:5px;">Đổi Điểm <span id="redeemBadge" style="display:none; background:#ef4444; color:white; font-size:9px; font-weight:900; min-width:16px; height:16px; border-radius:50%; align-items:center; justify-content:center; padding:0 2px;">0</span></button>
 </div>
 
             <!-- PANEL ĐỔI ĐIỂM (ẩn mặc định) -->
@@ -3032,6 +3045,27 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
 
             </div>
 
+            <!-- PANEL QUẢN LÝ THIẾT BỊ (tab riêng) -->
+            <div id="deviceManagePanel" style="display:none; flex-direction:column; flex:1; overflow:hidden; overflow-y:auto; margin-top:10px;">
+                <div style="background:rgba(255,255,255,0.03); border:0.5px solid rgba(255,255,255,0.1); border-radius:18px; padding:14px;">
+                    <div style="font-size:12px; font-weight:900; color:#1A91FF; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between;">
+                        <span style="display:flex;align-items:center;gap:6px;">
+                            <svg width="14" height="14" fill="none" stroke="#1A91FF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+                            QUẢN LÝ THIẾT BỊ
+                        </span>
+                        <button onclick="window.loadApprovedDevicesList()" style="background:rgba(10,132,255,0.15);border:0.5px solid rgba(10,132,255,0.35);border-radius:10px;color:#1A91FF;font-size:10px;font-weight:800;padding:3px 10px;cursor:pointer;">Làm Mới</button>
+                    </div>
+                    <button onclick="window.openDeviceApprovePopup()" style="width:100%;padding:11px;border-radius:14px;border:none;background:linear-gradient(135deg,rgba(10,132,255,0.2),rgba(191,90,242,0.2));border:0.5px solid rgba(10,132,255,0.4);color:white;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:12px;letter-spacing:0.3px;">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Nhập Mã Duyệt Nhanh
+                    </button>
+                    <div style="font-size:10px;color:rgba(255,255,255,0.35);font-weight:700;text-transform:uppercase;letter-spacing:0.7px;margin-bottom:8px;">Thiết Bị Đã Cấp Quyền</div>
+                    <div id="approvedDevicesList" style="display:flex;flex-direction:column;gap:7px;max-height:400px;overflow-y:auto;">
+                        <div style="text-align:center;padding:20px;color:rgba(255,255,255,0.2);font-size:12px;">Nhấn Làm Mới để tải danh sách</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- PANEL DANH SÁCH ĐẠI LÝ (hiện mặc định) -->
             <div id="agencyMainPanel" style="display:flex; flex-direction:column; flex:1; overflow:hidden; overflow-y:auto;">
             <form id="agencyForm" onsubmit="window.handleAgencySubmit(event)" style="background: rgba(0,0,0,0.2); padding: 16px; border-radius: 12px; border: 1px dashed rgba(255,255,255,0.1); margin-bottom: 15px; flex-shrink: 0;">
@@ -3098,29 +3132,6 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
                     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185z"/></svg>
                     Cấp Mã
                 </button>
-            </div>
-
-            <!-- ===== QUẢN LÝ THIẾT BỊ (ADMIN) ===== -->
-            <div style="margin-top:16px; background:rgba(255,255,255,0.03); border:0.5px solid rgba(255,255,255,0.1); border-radius:18px; padding:14px;">
-                <div style="font-size:12px; font-weight:900; color:#1A91FF; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between;">
-                    <span style="display:flex;align-items:center;gap:6px;">
-                        <svg width="14" height="14" fill="none" stroke="#1A91FF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
-                        QUẢN LÝ THIẾT BỊ
-                    </span>
-                    <button onclick="window.loadApprovedDevicesList()" style="background:rgba(10,132,255,0.15);border:0.5px solid rgba(10,132,255,0.35);border-radius:10px;color:#1A91FF;font-size:10px;font-weight:800;padding:3px 10px;cursor:pointer;">Làm Mới</button>
-                </div>
-
-                <!-- Nút duyệt nhanh -->
-                <button onclick="window.openDeviceApprovePopup()" style="width:100%;padding:11px;border-radius:14px;border:none;background:linear-gradient(135deg,rgba(10,132,255,0.2),rgba(191,90,242,0.2));border:0.5px solid rgba(10,132,255,0.4);color:white;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:12px;letter-spacing:0.3px;">
-                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    Nhập Mã Duyệt Nhanh
-                </button>
-
-                <!-- Danh sách thiết bị đã duyệt -->
-                <div style="font-size:10px;color:rgba(255,255,255,0.35);font-weight:700;text-transform:uppercase;letter-spacing:0.7px;margin-bottom:8px;">Thiết Bị Đã Cấp Quyền</div>
-                <div id="approvedDevicesList" style="display:flex;flex-direction:column;gap:7px;max-height:200px;overflow-y:auto;">
-                    <div style="text-align:center;padding:20px;color:rgba(255,255,255,0.2);font-size:12px;">Nhấn Làm Mới để tải danh sách</div>
-                </div>
             </div>
 
             </div>
@@ -5234,21 +5245,29 @@ window.updateWheelPointsDisplay = function(store) {
     const mainPanel   = document.getElementById('agencyMainPanel');
     const listPanel   = document.getElementById('agencyListPanel');
     const redeemPanel = document.getElementById('redeemAdminPanel');
+    const devicePanel = document.getElementById('deviceManagePanel');
     const tabMain     = document.getElementById('tabBtnMain');
     const tabList     = document.getElementById('tabBtnList');
     const tabRedeem   = document.getElementById('tabBtnRedeem');
+    const tabDevice   = document.getElementById('tabBtnDevice');
 
     if(mainPanel) mainPanel.style.display = 'none';
     if(listPanel) listPanel.style.display = 'none';
     if(redeemPanel) redeemPanel.style.display = 'none';
+    if(devicePanel) devicePanel.style.display = 'none';
     if(tabMain) { tabMain.style.background = 'transparent'; tabMain.style.color = 'rgba(255,255,255,0.5)'; tabMain.style.boxShadow = 'none'; }
     if(tabList) { tabList.style.background = 'transparent'; tabList.style.color = 'rgba(255,255,255,0.5)'; tabList.style.boxShadow = 'none'; }
     if(tabRedeem) { tabRedeem.style.background = 'transparent'; tabRedeem.style.color = 'rgba(255,255,255,0.5)'; tabRedeem.style.boxShadow = 'none'; }
+    if(tabDevice) { tabDevice.style.background = 'transparent'; tabDevice.style.color = 'rgba(255,255,255,0.5)'; tabDevice.style.boxShadow = 'none'; }
 
     if (tab === 'redeem') {
         if(redeemPanel) redeemPanel.style.display = 'flex';
         if(tabRedeem) { tabRedeem.style.background = 'linear-gradient(135deg,rgba(255,159,10,0.85),rgba(255,120,0,0.85))'; tabRedeem.style.color = 'white'; tabRedeem.style.boxShadow = '0 2px 8px rgba(255,159,10,0.3)'; }
         window.loadRedeemRequests(); window.renderRedeemSettings();
+    } else if (tab === 'device') {
+        if(devicePanel) devicePanel.style.display = 'flex';
+        if(tabDevice) { tabDevice.style.background = 'linear-gradient(135deg,rgba(10,132,255,0.85),rgba(26,145,255,0.85))'; tabDevice.style.color = 'white'; tabDevice.style.boxShadow = '0 2px 8px rgba(10,132,255,0.3)'; }
+        window.loadApprovedDevicesList();
     } else if (tab === 'list') {
         if(listPanel) listPanel.style.display = 'flex';
                 // Dọn sạch form và bộ nhớ để KHÔNG BỊ ĐÈ dữ liệu cũ
@@ -5536,7 +5555,10 @@ window.updateWheelPointsDisplay = function(store) {
         window.revokeDevice = function(deviceId) {
             window.appConfirm('Thu Hồi Quyền', 'Thu hồi quyền thiết bị <b>' + deviceId + '</b>?', function() {
                 if (!dbRef) return;
+                // Xóa approved_devices → thiết bị sẽ bị bắt ra ngay qua listener
                 dbRef.child('approved_devices/' + deviceId).remove().then(function() {
+                    // Xóa session để thiết bị không tự login lại
+                    dbRef.child('pml_sessions/' + deviceId).remove();
                     window.showToast('Đã thu hồi quyền ' + deviceId);
                     window.loadApprovedDevicesList();
                 });
@@ -6484,24 +6506,8 @@ window.handleAgencySubmit = function(e) {
     </button>
 </div>`;
                 
-                // --- BẮT ĐẦU CODE GIAO DIỆN NÚT LẤY LINK & HỦY LINK ---
-let linkStatusHtml = '';
-if (ag.magicLink) {
-    if (ag.magicLink.used) {
-        linkStatusHtml = `<div style="font-size: 10px; color: #4ade80; margin-top: 6px; text-align: center;">Khách đã xem lúc: ${window.formatDate(ag.magicLink.usedAt)}</div>`;
-    } else {
-        // Đã thêm Nút Hủy Link (Màu đỏ) ngay cạnh chữ Chờ khách xem
-        linkStatusHtml = `<div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 6px;">
-            <span style="font-size: 10px; color: #facc15;">Đã gửi link, chờ khách xem...</span>
-            <button type="button" onclick="window.cancelMagicLink('${ag.code}')" style="background: rgba(255, 69, 58, 0.15); border: 0.5px solid rgba(255, 69, 58, 0.4); color: #FF453A; border-radius: 14px; font-size: 10px; font-weight: 700; padding: 6px 12px; cursor: pointer; box-shadow: 0 2px 10px rgba(255,69,58,0.2); transition: all 0.2s;">✕ Hủy Link</button>
-        </div>`;
-    }
-}
-cHtml += `<div style="display: flex; gap: 6px; flex-wrap: nowrap; width:100%; margin-top: 6px;">
-    <button type="button" class="btn-outline" style="flex: 1; padding: 8px 0; border-radius: 10px; background: rgba(10, 132, 255, 0.1) !important; color: #0A84FF !important; border: 0.5px solid rgba(10, 132, 255, 0.3) !important;" onclick="window.createMagicLink('${ag.code}')">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="flex-shrink:0;display:inline;vertical-align:middle;margin-right:4px;"><path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Lấy Link Nhanh Gửi Khách
-    </button>
-</div><div id="mlStatus_${ag.code}">${linkStatusHtml}</div>`;
+// --- BẮT ĐẦU CODE GIAO DIỆN NÚT LẤY LINK & HỦY LINK ---
+// (Đã ẩn phần lấy link nhanh theo yêu cầu)
 // --- KẾT THÚC CODE GIAO DIỆN NÚT LẤY LINK & HỦY LINK ---
 
                 
@@ -8557,9 +8563,14 @@ window.requestDeviceAccess = function() {
     if (btn) { btn.textContent = 'Đang chờ duyệt...'; btn.disabled = true; btn.style.opacity = '0.6'; }
     if (status) status.style.display = 'block';
     if (TELEGRAM_TOKEN && TELEGRAM_CHAT_ID) {
-        var msg = encodeURIComponent('📱 YÊU CẦU TRUY CẬP APP\n🏪 Cửa hàng: ' + storeName + '\n🔑 Mã máy: ' + PML_DEVICE_ID);
-        var url = 'https://api.telegram.org/bot' + TELEGRAM_TOKEN + '/sendMessage?chat_id=' + TELEGRAM_CHAT_ID + '&text=' + msg;
-        fetch(url).catch(function(){});
+        var msgText = '📱 YÊU CẦU TRUY CẬP APP\n🏪 Cửa hàng: ' + storeName + '\n🔑 Mã máy: ' + PML_DEVICE_ID;
+        fetch('https://api.telegram.org/bot' + TELEGRAM_TOKEN + '/sendMessage', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: String(TELEGRAM_CHAT_ID), text: msgText })
+        }).then(function(res){ return res.json(); }).then(function(data){
+            if (!data.ok) console.warn('Telegram lỗi:', data.description);
+        }).catch(function(e){ console.warn('Telegram fetch lỗi:', e); });
     }
     localStorage.setItem('pml_pending_store_name', storeName);
     window.startDeviceApprovalListener();
@@ -8585,6 +8596,21 @@ window.startDeviceApprovalListener = function() {
                     pmlDoLogin(val.storeId);
                     window.showToast && window.showToast('✅ Thiết bị đã được duyệt!');
                 }).catch(function(){ pmlDoLogin(val.storeId); });
+            } else if (val === null || (val && val.status !== true)) {
+                // Thiết bị bị thu hồi hoặc chưa được duyệt
+                var appIsOpen = document.getElementById('mainAppContent') && document.getElementById('mainAppContent').style.display !== 'none';
+                if (appIsOpen && localStorage.getItem('pml_approved_device') === '1') {
+                    // Đang dùng app mà bị thu hồi → đăng xuất ngay
+                    localStorage.removeItem('pml_approved_device');
+                    localStorage.removeItem('pml_logged_in');
+                    localStorage.removeItem('pml_admin');
+                    window.currentStoreCode = null;
+                    window.isAdmin = false;
+                    document.getElementById('mainAppContent').style.display = 'none';
+                    document.getElementById('authGateway').style.display = 'flex';
+                    document.getElementById('authGateway').style.opacity = '1';
+                    window.showToast && window.showToast('⚠️ Thiết bị đã bị thu hồi quyền truy cập!');
+                }
             }
         });
 };
@@ -8839,164 +8865,8 @@ if (!savedCode) {
 
         window.initApp();
 
-        /* ============================================================
-           POPUP CÀI ĐẶT APP — Hiện lần đầu, đúng giao diện
-        ============================================================ */
-        (function() {
-            const isStandalone = window.matchMedia('(display-mode: standalone)').matches
-                || window.navigator.standalone === true;
-
-            // ── Nếu đang chạy PWA (standalone) → KHÔNG hiện popup cài app bao giờ ──
-            if (isStandalone) return;
-
-            const dismissed = localStorage.getItem('pml_install_dismissed');
-            if (dismissed) return;
-
-            // Phát hiện iOS hay Android
-            const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
-            const isAndroid = /android/i.test(navigator.userAgent);
-            if (!isIOS && !isAndroid) return;
-
-            let deferredPrompt = null;
-            window.addEventListener('beforeinstallprompt', function(e) {
-                e.preventDefault();
-                deferredPrompt = e;
-            });
-
-            const overlay = document.createElement('div');
-            overlay.id = 'installOverlay';
-            overlay.style.cssText = `
-                position:fixed;inset:0;z-index:999999;
-                display:flex;align-items:flex-end;justify-content:center;
-                background:rgba(0,0,0,0.55);
-                backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
-                animation:fadeInOverlay 0.3s ease forwards;
-                padding-bottom: env(safe-area-inset-bottom, 0px);
-            `;
-
-            const iosGuide = `
-                <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">
-                    <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.06);border-radius:12px;padding:10px 12px;">
-                        <div style="width:32px;height:32px;border-radius:8px;background:rgba(10,132,255,0.2);border:0.5px solid rgba(10,132,255,0.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                            <svg width="18" height="18" fill="none" stroke="#0A84FF" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25H7.5a2.25 2.25 0 00-2.25 2.25v9a2.25 2.25 0 002.25 2.25h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25H15M9 12l3 3m0 0l3-3m-3 3V2.25"/></svg>
-                        </div>
-                        <div>
-                            <div style="font-size:12px;font-weight:800;color:#fff;">Bước 1 — Bấm nút Chia sẻ</div>
-                            <div style="font-size:10.5px;color:rgba(255,255,255,0.5);margin-top:2px;">Nút <b style="color:#0A84FF;">⬆</b> ở thanh dưới Safari</div>
-                        </div>
-                    </div>
-                    <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.06);border-radius:12px;padding:10px 12px;">
-                        <div style="width:32px;height:32px;border-radius:8px;background:rgba(48,209,88,0.2);border:0.5px solid rgba(48,209,88,0.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                            <svg width="18" height="18" fill="none" stroke="#30D158" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path stroke-linecap="round" d="M14 17.5h7M17.5 14v7"/></svg>
-                        </div>
-                        <div>
-                            <div style="font-size:12px;font-weight:800;color:#fff;">Bước 2 — Chọn "Thêm vào MH Chính"</div>
-                            <div style="font-size:10.5px;color:rgba(255,255,255,0.5);margin-top:2px;">Kéo xuống trong menu chia sẻ, bấm <b style="color:#30D158;">Thêm vào Màn hình Chính</b></div>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            const androidBtn = `
-                <button id="installAndroidBtn" style="
-                    width:100%;padding:14px;margin-top:8px;
-                    background:linear-gradient(135deg,rgba(10,132,255,0.9),rgba(191,90,242,0.9));
-                    border:none;border-radius:14px;color:#fff;
-                    font-size:15px;font-weight:900;cursor:pointer;
-                    box-shadow:0 4px 20px rgba(10,132,255,0.4);
-                    display:flex;align-items:center;justify-content:center;gap:8px;
-                    letter-spacing:0.3px;
-                ">
-                    <svg width="18" height="18" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
-                    Cài App Ngay
-                </button>
-            `;
-
-            overlay.innerHTML = `
-                <div id="installBox" style="
-                    width:100%;max-width:420px;
-                    background:rgba(18,18,20,0.92);
-                    border:0.5px solid rgba(255,255,255,0.15);
-                    border-bottom:none;
-                    border-radius:28px 28px 0 0;
-                    padding:20px 20px calc(24px + env(safe-area-inset-bottom,0px));
-                    font-family:-apple-system,BlinkMacSystemFont,'Be Vietnam Pro',sans-serif;
-                    backdrop-filter:blur(40px) saturate(200%);
-                    -webkit-backdrop-filter:blur(40px) saturate(200%);
-                    animation:slideUpSheet 0.4s cubic-bezier(0.25,1,0.5,1) forwards;
-                    box-shadow:0 -4px 40px rgba(0,0,0,0.5);
-                ">
-                    <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:4px;margin:0 auto 18px;"></div>
-                    <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
-                        <img src="logo.png" style="width:56px;height:56px;border-radius:14px;box-shadow:0 4px 16px rgba(0,0,0,0.4);flex-shrink:0;" onerror="this.style.background='rgba(10,132,255,0.3)';this.removeAttribute('src')">
-                        <div>
-                            <div style="font-size:16px;font-weight:900;color:#fff;line-height:1.2;
-                                background:linear-gradient(90deg,#93c5fd,#f0f4ff,#93c5fd);
-                                -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
-                                Phục Minh Long
-                            </div>
-                            <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:3px;font-weight:500;">Ứng dụng đặt gạch men và báo giá rõ ràng</div>
-                            <div style="display:flex;align-items:center;gap:4px;margin-top:5px;">
-                                <span style="font-size:9px;padding:2px 8px;border-radius:20px;background:rgba(48,209,88,0.15);color:#30D158;border:0.5px solid rgba(48,209,88,0.35);font-weight:700;">MIỄN PHÍ</span>
-                                <span style="font-size:9px;padding:2px 8px;border-radius:20px;background:rgba(10,132,255,0.15);color:#60a5fa;border:0.5px solid rgba(10,132,255,0.3);font-weight:700;">TẢI NGAY TÍCH ĐIỂM ĐỔI ƯU ĐÃI</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div style="height:0.5px;background:rgba(255,255,255,0.1);margin-bottom:14px;"></div>
-                    <div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:4px;display:flex;align-items:center;gap:6px;"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg> Thêm vào Màn hình Chính</div>
-                    <div style="font-size:11.5px;color:rgba(255,255,255,0.45);margin-bottom:14px;font-weight:500;">Truy cập nhanh → mượt → gọn nhẹ | <strong style="color:white;">phuc.pro.vn</strong></div>
-                    ${isIOS ? iosGuide : androidBtn}
-                    <button id="installDismissBtn" style="
-                        width:100%;padding:11px;margin-top:10px;
-                        background:rgba(255,255,255,0.05);
-                        border:0.5px solid rgba(255,255,255,0.1);
-                        border-radius:14px;color:rgba(255,255,255,0.4);
-                        font-size:13px;font-weight:600;cursor:pointer;
-                    ">Bỏ qua, tiếp tục dùng trên trình duyệt</button>
-                </div>
-            `;
-
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes fadeInOverlay { from{opacity:0} to{opacity:1} }
-                @keyframes slideUpSheet { from{transform:translateY(100%)} to{transform:translateY(0)} }
-                @keyframes slideDownSheet { from{transform:translateY(0)} to{transform:translateY(110%)} }
-            `;
-            document.head.appendChild(style);
-            document.body.appendChild(overlay);
-
-            function closeInstall(remember) {
-                if (remember) localStorage.setItem('pml_install_dismissed', '1');
-                const box = document.getElementById('installBox');
-                if (box) box.style.animation = 'slideDownSheet 0.35s cubic-bezier(0.5,0,0.75,0) forwards';
-                overlay.style.animation = 'fadeInOverlay 0.35s ease reverse forwards';
-                setTimeout(function(){ overlay.remove(); }, 380);
-            }
-
-            document.getElementById('installDismissBtn').addEventListener('click', function(){ closeInstall(true); });
-            overlay.addEventListener('click', function(e){ if(e.target === overlay) closeInstall(false); });
-
-            if (isAndroid) {
-                var btn = document.getElementById('installAndroidBtn');
-                if (btn) {
-                    btn.addEventListener('click', function() {
-                        if (deferredPrompt) {
-                            deferredPrompt.prompt();
-                            deferredPrompt.userChoice.then(function(result){
-                                if (result.outcome === 'accepted') closeInstall(true);
-                                deferredPrompt = null;
-                            });
-                        } else {
-                            closeInstall(true);
-                            setTimeout(function(){ window.showToast && window.showToast('Bấm nút ⋮ → "Thêm vào màn hình chính"'); }, 400);
-                        }
-                    });
-                }
-            }
-
-            overlay.style.display = 'none';
-            setTimeout(function(){ overlay.style.display = 'flex'; }, 1500);
-        })();
+        /* POPUP CÀI ĐẶT APP — Đã tắt vì màn hình khóa đã có hướng dẫn */
+        // (Popup bị ẩn theo yêu cầu — hướng dẫn cài app đã có ở màn hình khóa browserLockScreen)
 
         /* Block PWA dự phòng đã được tích hợp vào initApp() với pwaCheckSession() */
 
