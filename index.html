@@ -2320,7 +2320,7 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
             <!-- ADMIN BYPASS BUTTON — chỉ hiện khi có sessionStorage adminBypass -->
             <div id="adminBypassBtnWrap" style="display:none; margin-top:14px; text-align:center;">
                 <div style="height:0.5px;background:rgba(255,90,90,0.2);margin-bottom:12px;"></div>
-                <button id="adminBypassLoginBtn" onclick="window.pmlDoLogin('PHUCMINHLONG')" style="
+                <button id="adminBypassLoginBtn" onclick="window.pmlDoAdminLogin()" style="
                     display:inline-flex; align-items:center; gap:6px;
                     background:rgba(255,59,48,0.12);
                     border:0.5px solid rgba(255,59,48,0.4);
@@ -8514,6 +8514,27 @@ function pmlDoLogin(code) {
 }
 
 window.pmlDoLogin = pmlDoLogin;
+
+// ═══════════════════════════════════════════════════
+// ĐĂNG NHẬP ADMIN BYPASS — đầy đủ quyền quản trị
+// ═══════════════════════════════════════════════════
+window.pmlDoAdminLogin = function() {
+    localStorage.setItem('pml_admin', 'true');
+    localStorage.setItem('pml_logged_in', 'admin');
+    window.currentStoreCode = 'admin';
+    window.isAdmin = true;
+    window.isGuestMode = false;
+    document.body.classList.remove('guest-mode');
+    document.getElementById('authGateway').style.display = 'none';
+    document.getElementById('mainAppContent').style.display = 'block';
+    document.getElementById('guestContactBar').style.display = 'none';
+    var progressBar = document.getElementById('progressBarUI');
+    if (progressBar) progressBar.style.display = 'none';
+    window.updateAdminUI();
+    window.renderCategories();
+    window.renderProducts(true);
+    window.appAlert && window.appAlert('Chào Phục', 'Đã vào chế độ Quản Trị Admin!');
+};
 
 // Đóng popup banner
 window.dismissGlobalPopup = function() {
