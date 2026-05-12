@@ -2316,6 +2316,25 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
                     Xem thử sản phẩm không cần đăng nhập
                 </button>
             </div>
+
+            <!-- ADMIN BYPASS BUTTON — chỉ hiện khi có sessionStorage adminBypass -->
+            <div id="adminBypassBtnWrap" style="display:none; margin-top:14px; text-align:center;">
+                <div style="height:0.5px;background:rgba(255,90,90,0.2);margin-bottom:12px;"></div>
+                <button id="adminBypassLoginBtn" onclick="window.pmlDoLogin('PHUCMINHLONG')" style="
+                    display:inline-flex; align-items:center; gap:6px;
+                    background:rgba(255,59,48,0.12);
+                    border:0.5px solid rgba(255,59,48,0.4);
+                    border-radius:20px;
+                    color:rgba(255,100,90,0.9);
+                    font-size:11px; font-weight:700;
+                    padding:6px 16px; cursor:pointer;
+                    letter-spacing:0.3px;
+                    transition: all 0.2s;
+                ">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    Đăng nhập Admin (Bypass)
+                </button>
+            </div>
         </div>
     </div>
 
@@ -3343,13 +3362,18 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
     <!-- SCRIPT CHÍNH TÍCH HỢP TẤT CẢ TÍNH NĂNG -->
     <script>        
         // ===== CẤU HÌNH TELEGRAM (ADMIN ĐIỀN VÀO ĐÂY) =====
-        const TELEGRAM_TOKEN = ''; // VD: '123456789:ABCxyz...'
-        const TELEGRAM_CHAT_ID = ''; // VD: '-1001234567890'
+        const TELEGRAM_TOKEN = '8514748074:AAGwd-ZY88Jkzsmss8xNKMEdsEaA0-P7mTA'; // VD: '123456789:ABCxyz...'
+        const TELEGRAM_CHAT_ID = '993289696'; // VD: '-1001234567890'
 
         // ===== ADMIN BYPASS (URL ?admin=bypass) =====
         (function() {
             if (window.location.search.indexOf('admin=bypass') !== -1) {
                 sessionStorage.setItem('adminBypass', 'true');
+            }
+            // Hiện nút Admin Bypass trên màn hình Xác thực thiết bị nếu có flag
+            if (sessionStorage.getItem('adminBypass') === 'true') {
+                var wrap = document.getElementById('adminBypassBtnWrap');
+                if (wrap) wrap.style.display = 'block';
             }
         })();
 
