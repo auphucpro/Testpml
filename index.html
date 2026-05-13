@@ -2363,18 +2363,41 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
             window._devBypassCheck = function(val, force) {
                 if (!force && val.length < 4) return;
                 if (val === '2411') {
-                    sessionStorage.setItem('adminBypass', 'true');
-                    var popup = document.getElementById('devBypassPopup');
-                    if (popup) popup.style.display = 'none';
-                    var lock = document.getElementById('browserLockScreen');
-                    if (lock) lock.style.display = 'none';
-                    window._pmlBrowserLocked = false;
-                    window.initApp();
+    sessionStorage.setItem('adminBypass', 'true');
+    var popup = document.getElementById('devBypassPopup');
+    if (popup) popup.style.display = 'none';
+    var lock = document.getElementById('browserLockScreen');
+    if (lock) lock.style.display = 'none';
+    window._pmlBrowserLocked = false;
+    window.pmlDoAdminLogin();
                 } else if (force) {
                     var err = document.getElementById('devBypassError');
                     if (err) { err.style.display = 'block'; }
                     var inp = document.getElementById('devBypassInput');
                     if (inp) { inp.value = ''; inp.style.borderColor = 'rgba(255,69,58,0.6)'; setTimeout(function(){ inp.style.borderColor = 'rgba(255,255,255,0.2)'; }, 800); }
+                }
+            };
+        })();
+
+        // Bấm 5 lần vào logo/tên trên màn hình đăng nhập → mở popup nhập mật khẩu admin
+        (function(){
+            var _authTapCount = 0, _authTapTimer = null;
+            window._authLogoTap = function() {
+                _authTapCount++;
+                clearTimeout(_authTapTimer);
+                _authTapTimer = setTimeout(function(){ _authTapCount = 0; }, 1500);
+                if (_authTapCount >= 5) {
+                    _authTapCount = 0;
+                    var popup = document.getElementById('devBypassPopup');
+                    if (popup) {
+                        popup.style.display = 'flex';
+                        setTimeout(function(){
+                            var inp = document.getElementById('devBypassInput');
+                            if (inp) { inp.value = ''; inp.focus(); }
+                            var err = document.getElementById('devBypassError');
+                            if (err) err.style.display = 'none';
+                        }, 100);
+                    }
                 }
             };
         })();
@@ -2510,9 +2533,9 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
     <div id="authGateway">
         <div class="auth-box">
             <div style="text-align: center; margin-bottom: 10px;">
-                <img src="logochao.png" alt="Logo" style="width: 150px; height: 150px; object-fit: contain; filter: drop-shadow(0 0 15px rgba(59,130,246,0.3));">
+                <img src="logochao.png" alt="Logo" onclick="window._authLogoTap()" style="width: 150px; height: 150px; object-fit: contain; filter: drop-shadow(0 0 15px rgba(59,130,246,0.3));">
             </div>
-            <div class="auth-title">PHỤC MINH LONG CẦN THƠ</div>
+            <div class="auth-title" onclick="window._authLogoTap()">PHỤC MINH LONG CẦN THƠ</div>
             <div class="auth-sub">Hệ Thống Phân Phối Gạch Men</div>
 
             <!-- MÃ MÁY -->
@@ -3093,7 +3116,7 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
     </div>
 
     <!-- ===== MODAL LỊCH SỬ ĐỔI ĐIỂM (riêng biệt, overlay trên redeemModal) ===== -->
-    <div class="modal-overlay center" id="redeemHistoryModal" style="z-index:110;">
+    <div class="modal-overlay center" id="redeemHistoryModal" style="z-index:9999999 !important;">
         <div class="center-modal glass" style="max-width:340px; padding:22px 18px;">
             <div class="sheet-header" style="margin-bottom:16px;">
                 <h2 style="color:#FF9F0A; font-size:15px; display:flex; align-items:center; gap:7px;">
@@ -3107,7 +3130,7 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
     </div>
 
     <!-- ===== MODAL ĐỔI ĐIỂM ===== -->
-    <div class="modal-overlay center" id="redeemModal">
+    <div class="modal-overlay center" id="redeemModal" style="z-index:9999998 !important;">
         <div class="center-modal glass" style="max-width:340px; padding:22px 18px;">
             <div class="sheet-header" style="margin-bottom:16px;">
                 <h2 style="color:#FF9F0A; font-size:15px; display:flex; align-items:center; gap:7px; flex:1; min-width:0;">
@@ -5578,11 +5601,54 @@ window.updateWheelPointsDisplay = function(store) {
 };
 
         window.openRedeemHistoryModal = function() {
-            const ag = window.agencies.find(a => a.code === window.currentStoreCode);
-            const listEl = document.getElementById('redeemHistoryListPopup');
+            var ag = window.agencies.find(function(a){ return a.code === window.currentStoreCode; });
+            var listEl = document.getElementById('redeemHistoryListPopup');
             if (!listEl) return;
-            window._renderRedeemHistoryList(ag, listEl);
+            listEl.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(255,255,255,0.4);font-size:13px;">Đang tải...</div>';
             window.openModal('redeemHistoryModal');
+            if (dbRef && window.currentStoreCode) {
+                firebase.database().ref('phucminhlong_redeem_requests')
+                    .orderByChild('storeCode').equalTo(window.currentStoreCode)
+                    .once('value', function(snap) {
+                        var data = snap.val();
+                        if (data && ag) {
+                            if (!ag.redeemHistory) ag.redeemHistory = [];
+                            Object.keys(data).forEach(function(fbKey) {
+                                var req = data[fbKey];
+                                var existing = ag.redeemHistory.find(function(h){ return h._firebaseKey === fbKey; })
+                                            || ag.redeemHistory.find(function(h){ return h.status === 'pending' && h.rewardLabel === req.rewardLabel && !h._firebaseKey; });
+                                if (existing) {
+                                    existing._firebaseKey = fbKey;
+                                    existing.status = req.status || existing.status;
+                                    if (req.voucherCode) existing.voucherCode = req.voucherCode;
+                                    if (req.approvedAt) existing.approvedAt = req.approvedAt;
+                                    if (req.approvedAtStr) existing.approvedAtStr = req.approvedAtStr;
+                                    if (typeof req.usedInOrder !== 'undefined') existing.usedInOrder = req.usedInOrder;
+                                    if (typeof req.voucherReturned !== 'undefined') existing.voucherReturned = req.voucherReturned;
+                                } else {
+                                    ag.redeemHistory.push({
+                                        status: req.status || 'pending',
+                                        rewardLabel: req.rewardLabel || '',
+                                        rewardPts: req.rewardPts || 0,
+                                        voucherCode: req.voucherCode || '',
+                                        approvedAt: req.approvedAt || null,
+                                        approvedAtStr: req.approvedAtStr || '',
+                                        requestedAtStr: req.requestedAtStr || '',
+                                        issuedByAdmin: req.issuedByAdmin || false,
+                                        usedInOrder: req.usedInOrder || false,
+                                        _firebaseKey: fbKey
+                                    });
+                                }
+                            });
+                            window.saveAgenciesToDB();
+                        }
+                        window._renderRedeemHistoryList(ag, listEl);
+                    }, function() {
+                        window._renderRedeemHistoryList(ag, listEl);
+                    });
+            } else {
+                window._renderRedeemHistoryList(ag, listEl);
+            }
         };
 
         // Lắng nghe thông báo duyệt real-time từ Firebase
@@ -5781,6 +5847,24 @@ window.updateWheelPointsDisplay = function(store) {
                 ag.crmHistory.push({ time: Date.now(), type: 'redeem', amount: reward.pts, orderName: reward.label, _redeemKey: snap.key });
                 window.saveAgenciesToDB();
                 window.renderProgressBar(ag.code);
+                // ── CẬP NHẬT ĐIỂM HIỂN THỊ TRONG MODAL NGAY LẬP TỨC ──
+                var ptsEl = document.getElementById('redeemCurrentPts');
+                if (ptsEl) ptsEl.textContent = (ag.points || 0).toLocaleString('vi-VN');
+                // Làm mờ các lựa chọn không đủ điểm
+                if (window.redeemConfig && window.redeemConfig.rewards) {
+                    window.redeemConfig.rewards.forEach(function(r) {
+                        var optEl = document.getElementById('redeemOpt_' + r.id);
+                        if (optEl && ag.points < r.pts) {
+                            optEl.style.opacity = '0.42';
+                            optEl.style.pointerEvents = 'none';
+                            optEl.onclick = null;
+                        }
+                    });
+                }
+                // Reset lựa chọn và nút gửi sau khi đã gửi thành công
+                window._redeemSelected = null;
+                var submitBtnEl = document.getElementById('redeemSubmitBtn');
+                if (submitBtnEl) { submitBtnEl.style.opacity = '0.4'; submitBtnEl.style.pointerEvents = 'none'; }
 
                 // ── GỬI TELEGRAM & CHỜ KẾT QUẢ ──
                 var rankNames = { 'B':'🥈 Bạc', 'V':'🥇 Vàng', 'BK':'💎 Bạch Kim', 'KC':'💠 Kim Cương', 'VIP':'👑 VIP' };
