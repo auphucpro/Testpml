@@ -5986,9 +5986,13 @@ window.updateWheelPointsDisplay = function(store) {
         window.revokeDevice = function(deviceId) {
             window.appConfirm('Thu Hồi Quyền', 'Thu hồi quyền thiết bị <b>' + deviceId + '</b>?', function() {
                 if (!dbRef) return;
-                // Xóa approved_devices → thiết bị sẽ bị bắt ra ngay qua listener
-                dbRef.child('approved_devices/' + deviceId).remove().then(function() {
-                    // Xóa session để thiết bị không tự login lại
+                // Set status: false thay vì remove() để listener .on('value') vẫn fire tức thì
+                // Nếu remove() thì listener chỉ nhận val=null, nhưng một số trường hợp không fire kịp
+                dbRef.child('approved_devices/' + deviceId).update({
+                    status: false,
+                    revokedAt: Date.now()
+                }).then(function() {
+                    // Xóa session Firebase để thiết bị không thể tự login lại khi mở app
                     dbRef.child('pml_sessions/' + deviceId).remove();
                     window.showToast('Đã thu hồi quyền ' + deviceId);
                     window.loadApprovedDevicesList();
@@ -9114,8 +9118,12 @@ window.requestDeviceAccess = function() {
                     var limit = matchedAg.deviceLimit ? parseInt(matchedAg.deviceLimit) : 1;
                     
                     if (activeCount >= limit) {
-                        if (window.showToast) window.showToast('⚠️ Vượt quá hạn mức ' + limit + ' thiết bị. Đang đợi Admin xác minh...');
-                        sendTelegramReq(storeName, "⚠️ CẢNH BÁO VƯỢT HẠN MỨC (" + limit + " máy): Khách nhập đúng mã " + matchedAg.code + " nhưng đã hết slot!");
+                        // ── VƯỢT HẠN MỨC: CHẶN HOÀN TOÀN, BÁO TELEGRAM ──
+                        if (window.showToast) window.showToast('⚠️ Mã này đã đạt giới hạn ' + limit + ' thiết bị! Vui lòng liên hệ Admin.');
+                        sendTelegramReq(storeName, "🚫 CỐ TÌNH ĐĂNG NHẬP VÀO MÃ ĐÃ ĐẠT GIỚI HẠN (" + limit + " máy): Mã " + matchedAg.code + " đã đủ thiết bị — CÓ NGƯỜI ĐANG CỐ CHIẾM MÃ!");
+                        if (btn) { btn.textContent = 'KÍCH HOẠT NGAY'; btn.disabled = false; btn.style.opacity = '1'; }
+                        if (status) status.style.display = 'none';
+                        // KHÔNG duyệt, KHÔNG bật listener — người này bị chặn hoàn toàn
                     } else {
                         // CÒN SLOT -> DUYỆT TỰ ĐỘNG
                         dbRef.child('approved_devices/' + PML_DEVICE_ID).set({
@@ -9124,9 +9132,12 @@ window.requestDeviceAccess = function() {
                             approvedAt: Date.now(),
                             approvedBy: 'auto_system'
                         }).then(function() {
-                            if (window.showToast) window.showToast('Kích hoạt tự động thành công!');
+                            if (window.showToast) window.showToast('✅ Kích hoạt thành công!');
+                            window.startDeviceApprovalListener();
+                        }).catch(function() {
+                            if (window.showToast) window.showToast('Lỗi kết nối, thử lại sau!');
+                            if (btn) { btn.textContent = 'KÍCH HOẠT NGAY'; btn.disabled = false; btn.style.opacity = '1'; }
                         });
-                        window.startDeviceApprovalListener();
                     }
                 }).catch(function() {
                     sendTelegramReq(storeName, "");
@@ -9256,15 +9267,36 @@ if (!savedCode) {
         dbRef.child('pml_sessions/' + PML_DEVICE_ID).once('value').then(function(sesSnap) {
             var ses = sesSnap.val();
             if (ses && ses.code) {
-                dbRef.once('value').then(function(fullSnap) {
-                    var fullData = fullSnap.val() || {};
-                    if (fullData.agencies) window.agencies = Array.isArray(fullData.agencies) ? fullData.agencies : Object.values(fullData.agencies);
-                    if (fullData.products) window.products = Array.isArray(fullData.products) ? fullData.products : Object.values(fullData.products);
-                    if (fullData.settings) window.appSettings = Object.assign({}, window.appSettings, fullData.settings);
-                    var exists = window.agencies.some(function(a) { return a.code === ses.code; });
-                    if (exists) { pwaRemoveLoad(); pmlDoLogin(ses.code); }
-                    else { dbRef.child('pml_sessions/' + PML_DEVICE_ID).remove(); showAuthScreen(); }
-                }).catch(function() { showAuthScreen(); });
+                // KIỂM TRA approved_devices TRƯỚC khi cho vào app
+                // Nếu bị thu hồi thì không được login lại dù còn session
+                dbRef.child('approved_devices/' + PML_DEVICE_ID).once('value').then(function(devSnap) {
+                    var devVal = devSnap.val();
+                    var isApproved = devVal && devVal.status === true;
+                    if (!isApproved) {
+                        // Bị thu hồi hoặc chưa được duyệt → xóa session và đá ra
+                        dbRef.child('pml_sessions/' + PML_DEVICE_ID).remove();
+                        localStorage.removeItem('pml_approved_device');
+                        showAuthScreen();
+                        return;
+                    }
+                    // Đã được duyệt → load dữ liệu và đăng nhập
+                    dbRef.once('value').then(function(fullSnap) {
+                        var fullData = fullSnap.val() || {};
+                        if (fullData.agencies) window.agencies = Array.isArray(fullData.agencies) ? fullData.agencies : Object.values(fullData.agencies);
+                        if (fullData.products) window.products = Array.isArray(fullData.products) ? fullData.products : Object.values(fullData.products);
+                        if (fullData.settings) window.appSettings = Object.assign({}, window.appSettings, fullData.settings);
+                        var exists = window.agencies.some(function(a) { return a.code === ses.code; });
+                        if (exists) { pwaRemoveLoad(); pmlDoLogin(ses.code); }
+                        else { dbRef.child('pml_sessions/' + PML_DEVICE_ID).remove(); showAuthScreen(); }
+                    }).catch(function() { showAuthScreen(); });
+                }).catch(function() {
+                    // Lỗi mạng khi check approved_devices → BẮT BUỘC hiện màn hình khóa
+                    // KHÔNG fallback vào app khi không xác minh được thiết bị
+                    localStorage.removeItem('pml_approved_device');
+                    localStorage.removeItem('pml_logged_in');
+                    localStorage.removeItem('pml_admin');
+                    showAuthScreen();
+                });
             } else { showAuthScreen(); }
         }).catch(function() {
             if (attempt < 4) { setTimeout(function() { pwaCheckSession(attempt + 1); }, 1500); }
@@ -9276,15 +9308,76 @@ if (!savedCode) {
         showAuthScreen();
     } else { pwaCheckSession(); }
 } else {
+    // ── CÓ SAVEDCODE TRONG LOCALSTORAGE: VẪN PHẢI XÁC MINH THIẾT BỊ TRƯỚC ──
+    // KHÔNG cho vào app ngay — phải check approved_devices trước để tránh bypass
     document.getElementById('authGateway').style.display = 'none';
-    document.getElementById('mainAppContent').style.display = 'block';
-    window.currentStoreCode = savedCode;
-    window.isAdmin = (savedCode === 'admin');
-    window.updateAdminUI();
-    window.renderCategories();
-    if(!window.isAdmin) window.renderProgressBar(savedCode);
-    window.renderProducts(true);
-}
+    document.getElementById('mainAppContent').style.display = 'none';
+    var savedLoadDiv = document.createElement('div');
+    savedLoadDiv.id = 'savedLoadScreen';
+    savedLoadDiv.style.cssText = 'position:fixed;inset:0;background:#000;z-index:99997;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;';
+    savedLoadDiv.innerHTML = '<div style="width:42px;height:42px;border:3px solid rgba(255,255,255,0.1);border-top-color:#0A84FF;border-radius:50%;animation:_mlsp2 0.8s linear infinite;"></div>'
+        + '<div style="color:rgba(255,255,255,0.65);font-size:14px;font-weight:600;letter-spacing:0.3px;">Đang xác thực...</div>'
+        + '<style>@keyframes _mlsp2{to{transform:rotate(360deg)}}</style>';
+    document.body.appendChild(savedLoadDiv);
+
+    function savedRemoveLoad() { var e = document.getElementById('savedLoadScreen'); if (e) e.remove(); }
+    function savedShowAuth() {
+        savedRemoveLoad();
+        localStorage.removeItem('pml_approved_device');
+        localStorage.removeItem('pml_logged_in');
+        localStorage.removeItem('pml_admin');
+        window.currentStoreCode = null;
+        window.isAdmin = false;
+        document.getElementById('authGateway').style.display = 'flex';
+        document.getElementById('authGateway').style.opacity = '1';
+    }
+
+    var _verifySaved = function(attempt) {
+        attempt = attempt || 1;
+        if (!dbRef) {
+            if (attempt < 20) { setTimeout(function() { _verifySaved(attempt + 1); }, 500); }
+            else { savedShowAuth(); } // Không kết nối được Firebase → đá ra
+            return;
+        }
+        if (savedCode === 'admin') {
+            // Admin không cần check approved_devices
+            savedRemoveLoad();
+            window.currentStoreCode = 'admin';
+            window.isAdmin = true;
+            document.getElementById('mainAppContent').style.display = 'block';
+            window.updateAdminUI();
+            window.renderCategories();
+            window.renderProducts(true);
+            return;
+        }
+        // Đại lý: bắt buộc kiểm tra approved_devices
+        dbRef.child('approved_devices/' + PML_DEVICE_ID).once('value').then(function(snap) {
+            var val = snap.val();
+            if (!val || val.status !== true) {
+                // Bị thu hồi hoặc chưa được duyệt → đá ra
+                savedShowAuth();
+                var btn = document.getElementById('reqAccessBtn');
+                if (btn) { btn.textContent = 'KÍCH HOẠT NGAY'; btn.disabled = false; btn.style.opacity = '1'; }
+                return;
+            }
+            // Còn hợp lệ → vào app
+            savedRemoveLoad();
+            window.currentStoreCode = savedCode;
+            window.isAdmin = false;
+            document.getElementById('mainAppContent').style.display = 'block';
+            window.updateAdminUI();
+            window.renderCategories();
+            window.renderProgressBar(savedCode);
+            window.renderProducts(true);
+            window.startDeviceApprovalListener();
+        }).catch(function() {
+            // Lỗi mạng → KHÔNG CHO VÀO, đá ra để bảo mật
+            if (attempt < 4) { setTimeout(function() { _verifySaved(attempt + 1); }, 1500); }
+            else { savedShowAuth(); }
+        });
+    };
+    _verifySaved();
+} // đóng else (savedCode)
 // --- KẾT THÚC AUTH THIẾT BỊ ---
 
             if(dbRef) {
