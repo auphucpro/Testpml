@@ -839,8 +839,8 @@
         .small-toggle input:checked + .small-slider:before { transform: translateX(14px); }
         .flex-between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;}
 
-        /* BẢO ĐẢM ALERT LUÔN NẰM TRÊN CÙNG */
-        #customAlertModal, #customConfirmModal { z-index: 9999999 !important; }
+                /* BẢO ĐẢM ALERT LUÔN NẰM TRÊN CÙNG */
+        #customAlertModal, #customConfirmModal { z-index: 99999999 !important; }
 
         /* Lightbox: GPU layer sẵn, visibility thay display:none */
         #lightbox {
@@ -3116,7 +3116,7 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
     </div>
 
     <!-- ===== MODAL LỊCH SỬ ĐỔI ĐIỂM (riêng biệt, overlay trên redeemModal) ===== -->
-    <div class="modal-overlay center" id="redeemHistoryModal" style="z-index:9999999 !important;">
+    <div class="modal-overlay center" id="redeemHistoryModal" style="z-index:99999990 !important;">
         <div class="center-modal glass" style="max-width:340px; padding:22px 18px;">
             <div class="sheet-header" style="margin-bottom:16px;">
                 <h2 style="color:#FF9F0A; font-size:15px; display:flex; align-items:center; gap:7px;">
@@ -6074,8 +6074,8 @@ window.updateWheelPointsDisplay = function(store) {
                   + '</div>'
                   + '<div style="display:flex;align-items:center;gap:6px;margin-top:6px;">'
                   + '<div style="flex:1;"></div>' + actionBtn
-                  + '<button onclick="window._setDelVoucher(\''+(r.storeCode||'')+'\',\''+(r.voucherCode||'')+'\'); window.deleteIssuedVoucher(\''+fbKeyStr+'\',\''+cardId+'\')" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;border-radius:7px;padding:3px 8px;font-size:10px;font-weight:800;cursor:pointer;display:flex;align-items:center;"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>'
-                  + '</div>'
+                  + '<button onclick="window._setDelVoucher(\''+(r.storeCode||'')+'\',\''+(r.voucherCode||'')+'\', '+(r.rewardPts||0)+', \''+(r.rewardLabel||'').replace(/'/g,"\\'")+'\'); window.deleteIssuedVoucher(\''+fbKeyStr+'\',\''+cardId+'\')" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;border-radius:7px;padding:3px 8px;font-size:10px;font-weight:800;cursor:pointer;display:flex;align-items:center;"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>' +
+ '</div>'
                   + '<div style="font-size:9px;color:rgba(74,222,128,0.5);margin-top:4px;display:flex;align-items:center;gap:3px;"><svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg> Cấp lúc: ' + approvedDate + '</div>'
                 : '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.25);border-radius:9px;padding:6px 10px;">'
                   + '<span style="font-size:10px;color:#f97316;flex:1;">Chưa có mã</span>' + actionBtn + '</div>';
@@ -6369,16 +6369,30 @@ window.updateWheelPointsDisplay = function(store) {
                     firebase.database().ref('phucminhlong_redeem_requests/' + firebaseKey).remove()
                         .catch(function() { window.showToast('⚠️ Lỗi xóa Firebase!'); });
                 }
-                // Xóa khỏi redeemHistory của đại lý
-                if (window._deletingVoucherStoreCode && window._deletingVoucherCode) {
-                    var ag = window.agencies.find(function(a){ return a.code === window._deletingVoucherStoreCode; });
-                    if (ag && ag.redeemHistory) {
-                        ag.redeemHistory = ag.redeemHistory.filter(function(h){ return h.voucherCode !== window._deletingVoucherCode; });
-                        window.saveAgenciesToDB();
-                    }
+                        // Xóa khỏi redeemHistory của đại lý
+        if (window._deletingVoucherStoreCode && window._deletingVoucherCode) {
+            var ag = window.agencies.find(function(a){ return a.code === window._deletingVoucherStoreCode; });
+            if (ag) {
+                if (ag.redeemHistory) {
+                    ag.redeemHistory = ag.redeemHistory.filter(function(h){ return h.voucherCode !== window._deletingVoucherCode; });
                 }
-            });
-        };
+                // Hoàn lại điểm nếu mã bị xóa
+                if (window._deletingVoucherPts && window._deletingVoucherPts > 0) {
+                    ag.points = (ag.points || 0) + window._deletingVoucherPts;
+                    if (!ag.crmHistory) ag.crmHistory = [];
+                    ag.crmHistory.push({
+                        time: Date.now(),
+                        type: 'redeemRefund',
+                        refundBy: 'admin',
+                        amount: window._deletingVoucherPts,
+                        orderName: window._deletingVoucherLabel || 'Xóa mã ưu đãi'
+                    });
+                }
+                window.saveAgenciesToDB();
+            }
+        }
+    });
+};
 
         window.loadRedeemRequests = function() {
             const list  = document.getElementById('redeemAdminList');
@@ -6420,8 +6434,8 @@ window.updateWheelPointsDisplay = function(store) {
                             + '<div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:3px;">Điểm lúc gửi: ' + (req.currentPts||0).toLocaleString('vi-VN') + '</div></div>'
                             + '<div style="display:flex;gap:8px;">'
                             + '<button onclick="window.approveRedeem(\'' + key + '\',\'' + req.storeCode + '\',' + req.rewardPts + ',\'' + (req.rewardLabel||'').replace(/'/g,"\\'") + '\')" style="flex:2;padding:9px;background:rgba(74,222,128,0.2);border:1px solid rgba(74,222,128,0.4);color:#4ade80;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Duyệt &amp; Cấp Mã</button>'
-                            + '<button onclick="window.rejectRedeem(\'' + key + '\',\'' + req.storeCode + '\',\'' + (req.rewardLabel||'').replace(/'/g,"\\'") + '\')" style="flex:1;padding:9px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;">✕ Từ Chối</button>'
-                            + '</div>';
+                            + '<button onclick="window.rejectRedeem(\'' + key + '\',\'' + req.storeCode + '\',\'' + (req.rewardLabel||'').replace(/'/g,"\\'") + '\', ' + (req.rewardPts||0) + ')" style="flex:1;padding:9px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg> Từ Chối</button>' +
+ '</div>';
                         list.appendChild(card);
                     });
                 });
@@ -8900,10 +8914,12 @@ const productLink = window.location.origin + window.location.pathname + '?id=' +
             });
         };
 
-        window._setDelVoucher = function(storeCode, voucherCode) {
-            window._deletingVoucherStoreCode = storeCode;
-            window._deletingVoucherCode = voucherCode;
-        };
+        window._setDelVoucher = function(storeCode, voucherCode, rewardPts, rewardLabel) {
+    window._deletingVoucherStoreCode = storeCode;
+    window._deletingVoucherCode = voucherCode;
+    window._deletingVoucherPts = rewardPts || 0;
+    window._deletingVoucherLabel = rewardLabel || '';
+};
 
         window.useVoucherInOrder = function(firebaseKey, storeCode, voucherCode) {
             window._pendingVoucherKey = firebaseKey;
