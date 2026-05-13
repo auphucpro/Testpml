@@ -2627,7 +2627,7 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
         </button>
 
         <div class="footer-banner" id="footerBanner">
-            <span style="color: var(--primary); font-weight: bold;">KIỂM TỒN NHANH&nbsp;</span> vào sản phẩm bấm<span>Đặt Hàng Zalo Phục!</span>
+            <span style="color: var(--primary); font-weight: bold;">KHÁCH CẦN GẤP&nbsp;</span> Yêu cầu<span>KIỂM TỒN NHANH!</span>
         </div>
     </div> <!-- END MAIN APP CONTENT -->
 
@@ -2657,7 +2657,7 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
             <div class="sheet-header" style="margin-bottom: 15px;">
                 <h2 id="calcModalTitleUI" style="color: var(--primary); font-size: 16px;"><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right: 6px;"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 4.5h-7.5A2.25 2.25 0 006 6.75v10.5A2.25 2.25 0 008.25 19.5h7.5a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0015.75 4.5zM12 8.25h.008v.008H12V8.25zm-2.25 0h.008v.008H9.75V8.25zm0 3h.008v.008H9.75v-.008zm4.5 0h.008v.008H14.25v-.008zm-4.5 3h.008v.008H9.75v-.008zm4.5 0h.008v.008H14.25v-.008z" /></svg> Máy Tính Số Lượng
 </h2>
-                <button class="icon-btn" onclick="window.closeModal('calcModal')">✕</button>
+                <button class="icon-btn" onclick="window.closeCalcModal()">✕</button>
             </div>
             <p id="calcTitleText" style="font-size: 14px; font-weight:bold; color: white; margin-bottom: 5px;"></p>
             <p id="calcSpecHint" style="font-size: 12px; color: var(--highlight); margin-bottom: 15px; font-style: italic;"></p>
@@ -2690,7 +2690,7 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
         <div class="center-modal glass" style="text-align: center; max-width: 320px; padding: 20px;">
             <h3 style="margin-bottom: 15px; font-size: 16px; color: var(--highlight);">Chọn Loại Sản Phẩm Lên Đơn</h3>
             <div id="multiPriceOptions" style="display: flex; flex-direction: column; gap: 10px;"></div>
-            <button class="btn-outline" onclick="window.closeModal('multiPriceSelectModal')" style="width:100%; margin-top:15px;">Hủy Bỏ</button>
+            <button class="btn-outline" onclick="window.closeMultiPriceModal()" style="width:100%; margin-top:15px;">Hủy Bỏ</button>
         </div>
     </div>
 
@@ -3636,11 +3636,26 @@ window.kiemTonNhanh = function() {
     const botToken = typeof TELEGRAM_TOKEN !== 'undefined' ? TELEGRAM_TOKEN : '';
     const chatId = typeof TELEGRAM_CHAT_ID !== 'undefined' ? TELEGRAM_CHAT_ID : '';
 
-    const message = `🔔 **YÊU CẦU KIỂM TỒN NHANH**\n` +
-                    `📦 **Sản phẩm:** ${p.code} (${p.size})\n` +
-                    `🏷 **Tên SP:** ${p.name}\n` +
-                    `👤 **Khách hàng:** ${storeName} (${storeCode})\n` +
-                    `⏰ **Thời gian:** ${new Date().toLocaleString('vi-VN')}`;
+    // Xây dựng thông tin giá
+    let priceInfo = '';
+    if (p.priceType === 'multi' && p.priceMulti) {
+        const midName = p.priceMulti.midType === 'Đậm' ? 'Đậm' : 'Viền';
+        priceInfo = `💰 *Giá nhận kho:*\n` +
+                    `  • Thân: ${p.priceMulti.than}k/m²\n` +
+                    `  • ${midName}: ${p.priceMulti.midPrice}k/m²\n` +
+                    `  • Điểm: ${p.priceMulti.diem}k/m²`;
+    } else if (p.price) {
+        priceInfo = `💰 *Giá nhận kho:* ${p.price}k/m²`;
+    }
+
+    const message = `🔔 *YÊU CẦU KIỂM TỒN NHANH*\n` +
+                    `━━━━━━━━━━━━━━━━\n` +
+                    `📦 *Sản phẩm:* ${p.code} (${p.size})\n` +
+                    `🏷 *Tên SP:* ${p.name}\n` +
+                    (priceInfo ? priceInfo + `\n` : ``) +
+                    `━━━━━━━━━━━━━━━━\n` +
+                    `👤 *Khách hàng:* ${storeName} (${storeCode})\n` +
+                    `⏰ *Thời gian:* ${new Date().toLocaleString('vi-VN')}`;
 
     if (!botToken || !chatId) {
         setTimeout(() => {
@@ -4300,6 +4315,8 @@ window.appConfirm = function(title, msg, callback) { document.getElementById('co
         }
         el.classList.add('show');
         document.body.classList.add('modal-open');
+        // Push history state để nút Back điện thoại đóng modal thay vì thoát trang
+        history.pushState({ modal: id }, '', '');
     }
 };
 
@@ -4307,6 +4324,13 @@ window.appConfirm = function(title, msg, callback) { document.getElementById('co
     var el = document.getElementById(id);
     if (el) {
         el.classList.remove('show');
+        el.style.zIndex = '';
+    }
+    // Đồng bộ history: nếu state hiện tại là modal vừa đóng → go back
+    // Dùng flag để popstate không xử lý lại
+    if (history.state && history.state.modal) {
+        window._closingByBtn = true;
+        history.back();
     }
     // Kiểm tra còn modal nào mở không, nếu không thì bỏ class modal-open
     var stillOpen = document.querySelector('.modal-overlay.show');
@@ -4331,21 +4355,46 @@ window.appConfirm = function(title, msg, callback) { document.getElementById('co
         window.closeLightbox = function() { const lb = document.getElementById('lightbox'); if(lb){ lb.classList.remove('show'); }};
 
                 window.addEventListener('popstate', function(e) {
-            var wasDetailOpen = document.getElementById('detailModal') && document.getElementById('detailModal').classList.contains('show');
-            var wasLightboxOpen = document.getElementById('lightbox') && document.getElementById('lightbox').classList.contains('show');
-            // Nếu đang xem ảnh to mà bấm back → chỉ đóng lightbox, KHÔNG đóng detailModal, KHÔNG scroll
-            if(wasLightboxOpen) {
+            // Nếu đang đóng bằng nút ✕ (closeModal gọi history.back) → bỏ qua, không xử lý
+            if (window._closingByBtn) {
+                window._closingByBtn = false;
+                return;
+            }
+            // Nếu đang xem ảnh to → chỉ đóng lightbox
+            var wasLightboxOpen = document.getElementById('lightbox') && document.getElementById('lightbox').classList.contains('lightbox-show' || 'show');
+            if (wasLightboxOpen) {
                 window.closeLightbox();
                 return;
             }
-            document.querySelectorAll('.modal-overlay').forEach(el => el.classList.remove('show')); 
-            window.closeLightbox(); 
-            document.body.classList.remove('modal-open');
-            // Nếu đang xem chi tiết sản phẩm mà bấm back → khôi phục vị trí cuộn
-            if(wasDetailOpen && window._savedScrollY !== undefined) {
-                requestAnimationFrame(function() {
-                    window.scrollTo({ top: window._savedScrollY, behavior: 'instant' });
+
+            // Tìm modal nào đang mở (ưu tiên modal có z-index cao nhất = mở sau cùng)
+            var openModals = Array.from(document.querySelectorAll('.modal-overlay.show'));
+            if (openModals.length > 0) {
+                // Đóng modal mở sau cùng (z-index cao nhất hoặc cuối danh sách DOM)
+                var topModal = openModals.reduce(function(top, el) {
+                    var z = parseInt(el.style.zIndex) || 100;
+                    var topZ = parseInt(top.style.zIndex) || 100;
+                    return z >= topZ ? el : top;
                 });
+
+                var wasDetailOpen = document.getElementById('detailModal') && document.getElementById('detailModal').classList.contains('show');
+
+                topModal.classList.remove('show');
+                topModal.style.zIndex = '';
+
+                // Nếu vẫn còn modal khác đang mở → giữ modal-open, đẩy lại state để back tiếp được
+                var stillOpen = document.querySelector('.modal-overlay.show');
+                if (stillOpen) {
+                    history.pushState({ modal: stillOpen.id }, '', '');
+                } else {
+                    document.body.classList.remove('modal-open');
+                    // Khôi phục vị trí cuộn nếu vừa đóng detailModal
+                    if (wasDetailOpen && window._savedScrollY !== undefined) {
+                        requestAnimationFrame(function() {
+                            window.scrollTo({ top: window._savedScrollY, behavior: 'instant' });
+                        });
+                    }
+                }
             }
         });
 
@@ -7594,7 +7643,9 @@ if(document.getElementById('pCdMin')) document.getElementById('pCdMin').value = 
         optsBox.innerHTML = html; 
         
         // Hiển thị bảng chọn loại lên TRÊN CÙNG
-        window.openModal('multiPriceSelectModal');
+        // Xếp multiPriceSelectModal lên trên detailModal
+        var mpsEl = document.getElementById('multiPriceSelectModal');
+        if (mpsEl) { mpsEl.style.zIndex = '200'; mpsEl.classList.add('show'); }
     } else { 
         window.openCalculator(p.id, p.code, p.price, ''); 
     }
@@ -7610,7 +7661,29 @@ if(document.getElementById('pCdMin')) document.getElementById('pCdMin').value = 
             let displayName = selectedCode; if(subType) displayName += ` (${subType})`;
             document.getElementById('calcTitleText').textContent = displayName; document.getElementById('calcSpecHint').innerText = 'Quy cách chuẩn: ' + p.specs;
             window.tempCartItem = { id: p.id, baseName: p.name, code: selectedCode, price: selectedPrice, subType: subType, discount: 0 };
-            window.closeModal('multiPriceSelectModal'); window.closeModal('detailModal'); window.openModal('calcModal');
+            window.closeMultiPriceModal();
+            // KHÔNG đóng detailModal — xếp calcModal lên trên, khi tắt sẽ thấy lại chi tiết
+            var calcEl = document.getElementById('calcModal');
+            if (calcEl) {
+                calcEl.style.zIndex = '200';
+                calcEl.classList.add('show');
+            }
+        };
+
+        // Đóng bảng chọn loại giá mà KHÔNG đóng detailModal
+        window.closeMultiPriceModal = function() {
+            var el = document.getElementById('multiPriceSelectModal');
+            if (el) { el.classList.remove('show'); el.style.zIndex = ''; }
+        };
+
+        // Đóng máy tính mà KHÔNG đóng detailModal — giữ nguyên bảng chi tiết phía sau
+        window.closeCalcModal = function() {
+            var calcEl = document.getElementById('calcModal');
+            if (calcEl) {
+                calcEl.classList.remove('show');
+                calcEl.style.zIndex = '';
+            }
+            // detailModal vẫn đang show, KHÔNG remove modal-open
         };
 
         window.copyToClipboardFallback = function(text) { const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"; textArea.style.top = "-9999px"; document.body.appendChild(textArea); textArea.focus(); textArea.select(); try { document.execCommand('copy'); } catch (err) {} document.body.removeChild(textArea); };
@@ -7636,7 +7709,7 @@ if(document.getElementById('pCdMin')) document.getElementById('pCdMin').value = 
             let finalName = window.tempCartItem.baseName; if(window.tempCartItem.subType) finalName += ` (${window.tempCartItem.subType})`;
             window.draftCart.push({ pId: window.tempCartItem.id, code: window.tempCartItem.code, name: finalName, thung: window.tempCartItem.thung, vien: window.tempCartItem.vien, m2: window.tempCartItem.m2, price: parseFloat(window.tempCartItem.price || 0), discount: 0 });
             localStorage.setItem('pml_draft_cart', JSON.stringify(window.draftCart));
-            window.updateCartBadge(); window.showToast("Đã thêm vào Đơn Hàng!"); window.closeModal('calcModal');
+            window.updateCartBadge(); window.showToast("Đã thêm vào Đơn Hàng!"); window.closeCalcModal();
         };
 
         window.updateCartBadge = function() {
