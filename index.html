@@ -2461,7 +2461,7 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
 
 <button id="reqAccessBtn" onclick="window.requestDeviceAccess()" 
         style="width:100%; padding:14px; border-radius:14px; border:none; background:linear-gradient(135deg,rgba(10,132,255,0.9),rgba(191,90,242,0.9)); color:white; font-size:14px; font-weight:900; cursor:pointer; letter-spacing:0.5px; box-shadow:0 4px 20px rgba(10,132,255,0.3); margin:0;">
-    KÍCH HOẠT ID
+    KÍCH HOẠT NGAY
 </button>
 
             <div id="reqAccessStatus" style="margin-top:12px; text-align:center; font-size:12px; color:rgba(255,255,255,0.45); display:none;">
@@ -3658,9 +3658,11 @@ window.kiemTonNhanh = function() {
         parse_mode: 'Markdown'
     };
 
-    // KIỂM TRA: NẾU SẢN PHẨM CÓ HÌNH -> CHUYỂN SANG CHẾ ĐỘ GỬI ẢNH (sendPhoto)
-    const pImage = p.image || p.img;
-    if (pImage && pImage.startsWith('http')) {
+    // KIỂM TRA: NẾU SẢN PHẨM CÓ HÌNH HTTP -> CHUYỂN SANG CHẾ ĐỘ GỬI ẢNH (sendPhoto)
+    // Chú ý: Telegram chỉ nhận URL ảnh HTTP, không nhận base64
+    const pImage = p.img1 || p.img2 || p.image || p.img;
+    const isHttpImage = pImage && (pImage.startsWith('http://') || pImage.startsWith('https://'));
+    if (isHttpImage) {
         url = `https://api.telegram.org/bot${botToken}/sendPhoto`;
         payload = {
             chat_id: chatId,
@@ -3669,26 +3671,60 @@ window.kiemTonNhanh = function() {
             parse_mode: 'Markdown'
         };
     }
-    fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    })
-    .then(res => res.json())
-    .then(data => {
-        finishKiemTon(btn, originalText);
-        if (data.ok) {
-            window.closeModal('detailModal'); // Đóng bảng chi tiết sản phẩm
-            window.showToast("Đã gửi yêu cầu kiểm tồn đến Phục!");
-        } else {
-            window.showToast("Lỗi gửi Telegram. Thử lại sau!");
+
+    var doFetch = function(fetchUrl, fetchPayload, onSuccess, onFail) {
+        fetch(fetchUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(fetchPayload)
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            if (data.ok) {
+                onSuccess();
+            } else {
+                onFail(data.description || 'Lỗi không xác định');
+            }
+        })
+        .catch(function(err) {
+            onFail('network_error');
+        });
+    };
+
+    doFetch(url, payload,
+        // Thành công
+        function() {
+            finishKiemTon(btn, originalText);
+            window.closeModal('detailModal');
+            window.showToast("✅ Đã gửi yêu cầu kiểm tồn đến Phục!");
+        },
+        // Thất bại - nếu gửi ảnh lỗi thì thử gửi text
+        function(errDesc) {
+            if (isHttpImage && errDesc !== 'network_error') {
+                // Ảnh lỗi (có thể URL hết hạn) → fallback gửi text
+                var textUrl = 'https://api.telegram.org/bot' + botToken + '/sendMessage';
+                var textPayload = { chat_id: chatId, text: message, parse_mode: 'Markdown' };
+                doFetch(textUrl, textPayload,
+                    function() {
+                        finishKiemTon(btn, originalText);
+                        window.closeModal('detailModal');
+                        window.showToast("✅ Đã gửi yêu cầu kiểm tồn đến Phục!");
+                    },
+                    function() {
+                        finishKiemTon(btn, originalText);
+                        window.showToast("⚠️ Gửi thất bại. Vui lòng thử lại!");
+                    }
+                );
+            } else {
+                finishKiemTon(btn, originalText);
+                if (errDesc === 'network_error') {
+                    window.showToast("⚠️ Không có mạng, vui lòng thử lại!");
+                } else {
+                    window.showToast("⚠️ Gửi thất bại: " + errDesc);
+                }
+            }
         }
-    })
-    .catch(err => {
-        console.error(err);
-        finishKiemTon(btn, originalText);
-        window.showToast("Lỗi kết nối mạng, không thể gửi yêu cầu!");
-    });
+    );
 };
 
 function finishKiemTon(btn, originalText) {
@@ -4264,6 +4300,24 @@ window.appConfirm = function(title, msg, callback) { document.getElementById('co
         }
         el.classList.add('show');
         document.body.classList.add('modal-open');
+    }
+};
+
+        window.closeModal = function(id) {
+    var el = document.getElementById(id);
+    if (el) {
+        el.classList.remove('show');
+    }
+    // Kiểm tra còn modal nào mở không, nếu không thì bỏ class modal-open
+    var stillOpen = document.querySelector('.modal-overlay.show');
+    if (!stillOpen) {
+        document.body.classList.remove('modal-open');
+        // Khôi phục vị trí cuộn
+        if (window._savedScrollY !== undefined) {
+            requestAnimationFrame(function() {
+                window.scrollTo({ top: window._savedScrollY, behavior: 'instant' });
+            });
+        }
     }
 };
 
@@ -8318,10 +8372,14 @@ if(document.getElementById('pCdMin')) document.getElementById('pCdMin').value = 
 
         window.openSharePrompt = function() {
             const p = window.products.find(x => x.id === window.viewingId);
+            if(!p) return;
             window.preparedShareFile = null;
-            const imgEl = document.querySelector('#vGallery .detail-img'); const canvas = document.createElement('canvas');
-            canvas.width = imgEl.naturalWidth || 800; canvas.height = imgEl.naturalHeight || 800; const ctx2 = canvas.getContext('2d'); ctx2.drawImage(imgEl, 0, 0, canvas.width, canvas.height);
-            canvas.toBlob(blob => { window.preparedShareFile = new File([blob], `${p.code}.jpg`, {type: 'image/jpeg'}); }, 'image/jpeg', 0.85);
+            const imgEl = document.querySelector('#vGallery .detail-img');
+            if (imgEl && imgEl.complete && imgEl.naturalWidth > 0) {
+                const canvas = document.createElement('canvas');
+                canvas.width = imgEl.naturalWidth || 800; canvas.height = imgEl.naturalHeight || 800; const ctx2 = canvas.getContext('2d'); ctx2.drawImage(imgEl, 0, 0, canvas.width, canvas.height);
+                canvas.toBlob(blob => { window.preparedShareFile = new File([blob], `${p.code}.jpg`, {type: 'image/jpeg'}); }, 'image/jpeg', 0.85);
+            }
             if (window.isAdmin) {
                 // Admin: hiện bảng chọn danh xưng
                 document.getElementById('shareModalTitle').textContent = 'Gửi báo giá cho ai?';
@@ -9082,7 +9140,7 @@ window.startDeviceApprovalListener = function() {
 
                 // Reset nút yêu cầu về trạng thái ban đầu
                 var btn = document.getElementById('reqAccessBtn');
-                if (btn) { btn.textContent = 'GỬI YÊU CẦU TRUY CẬP'; btn.disabled = false; btn.style.opacity = '1'; }
+                if (btn) { btn.textContent = 'KÍCH HOẠT NGAY'; btn.disabled = false; btn.style.opacity = '1'; }
                 var status = document.getElementById('reqAccessStatus');
                 if (status) status.style.display = 'none';
                 
