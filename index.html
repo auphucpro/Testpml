@@ -4354,7 +4354,7 @@ window.appConfirm = function(title, msg, callback) { document.getElementById('co
 };
         window.closeLightbox = function() { const lb = document.getElementById('lightbox'); if(lb){ lb.classList.remove('show'); }};
 
-                window.addEventListener('popstate', function(e) {
+        window.addEventListener('popstate', function(e) {
             // Nếu đang đóng bằng nút ✕ (closeModal gọi history.back) → bỏ qua, không xử lý
             if (window._closingByBtn) {
                 window._closingByBtn = false;
@@ -4364,6 +4364,8 @@ window.appConfirm = function(title, msg, callback) { document.getElementById('co
             var wasLightboxOpen = document.getElementById('lightbox') && document.getElementById('lightbox').classList.contains('lightbox-show' || 'show');
             if (wasLightboxOpen) {
                 window.closeLightbox();
+                // Đẩy lại state để back tiếp theo không thoát trang
+                history.pushState({ modal: 'base' }, '', '');
                 return;
             }
 
@@ -4377,7 +4379,7 @@ window.appConfirm = function(title, msg, callback) { document.getElementById('co
                     return z >= topZ ? el : top;
                 });
 
-                var wasDetailOpen = document.getElementById('detailModal') && document.getElementById('detailModal').classList.contains('show');
+                var wasDetailOpen = topModal.id === 'detailModal';
 
                 topModal.classList.remove('show');
                 topModal.style.zIndex = '';
@@ -4394,7 +4396,12 @@ window.appConfirm = function(title, msg, callback) { document.getElementById('co
                             window.scrollTo({ top: window._savedScrollY, behavior: 'instant' });
                         });
                     }
+                    // Đẩy state base để lần back tiếp theo không thoát khỏi trang
+                    history.pushState({ modal: 'base' }, '', '');
                 }
+            } else {
+                // Không có modal nào mở → đẩy lại state base để tránh thoát trang
+                history.pushState({ modal: 'base' }, '', '');
             }
         });
 
@@ -5507,12 +5514,8 @@ window.updateWheelPointsDisplay = function(store) {
                                     </div>` : ''}
                                 </div>
                             </div>
-                            <button onclick="window.confirmRedeemNotify()" style="display:none;"></button>`;
+                            <button onclick="window.confirmRedeemNotify()" style="margin-top:8px;width:100%;padding:7px;background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.35);color:#4ade80;border-radius:10px;font-size:11px;font-weight:800;cursor:pointer;">✓ Đã xem, đóng thông báo</button>`;
                             notifyEl.style.display = 'block';
-                                            setTimeout(function() {
-                    if (notifyEl) notifyEl.style.display = 'none';
-                    window.confirmRedeemNotify(); // Bắt máy tự động gửi lệnh lên Firebase luôn
-                }, 8000);
                         }
                     }
                     // Đánh dấu đã xem
@@ -5984,18 +5987,16 @@ window.updateWheelPointsDisplay = function(store) {
         };
 
         window.revokeDevice = function(deviceId) {
-            window.appConfirm('Thu Hồi Quyền', 'Thu hồi quyền thiết bị <b>' + deviceId + '</b>?', function() {
+            window.appConfirm('Thu Hồi Quyền', 'Thu hồi & xóa hẳn thiết bị <b>' + deviceId + '</b> khỏi hệ thống?', function() {
                 if (!dbRef) return;
-                // Set status: false thay vì remove() để listener .on('value') vẫn fire tức thì
-                // Nếu remove() thì listener chỉ nhận val=null, nhưng một số trường hợp không fire kịp
-                dbRef.child('approved_devices/' + deviceId).update({
-                    status: false,
-                    revokedAt: Date.now()
-                }).then(function() {
-                    // Xóa session Firebase để thiết bị không thể tự login lại khi mở app
+                // Xóa hẳn khỏi approved_devices để thiết bị biến mất khỏi danh sách
+                dbRef.child('approved_devices/' + deviceId).remove().then(function() {
+                    // Xóa luôn session để thiết bị không thể tự login lại
                     dbRef.child('pml_sessions/' + deviceId).remove();
-                    window.showToast('Đã thu hồi quyền ' + deviceId);
+                    window.showToast('Đã thu hồi & xóa thiết bị ' + deviceId);
                     window.loadApprovedDevicesList();
+                }).catch(function() {
+                    window.showToast('Lỗi kết nối, thử lại!');
                 });
             });
         };
@@ -9569,6 +9570,11 @@ if (!savedCode) {
         });
 
         window.initApp();
+
+        // Đẩy state base ngay khi app khởi động để nút Back điện thoại không thoát trang
+        if (!history.state || !history.state.modal) {
+            history.pushState({ modal: 'base' }, '', '');
+        }
 
         /* POPUP CÀI ĐẶT APP — Đã tắt vì màn hình khóa đã có hướng dẫn */
         // (Popup bị ẩn theo yêu cầu — hướng dẫn cài app đã có ở màn hình khóa browserLockScreen)
