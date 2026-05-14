@@ -2183,7 +2183,22 @@ body.guest-mode .spec-badge,
 body.guest-mode .pin-badge,
 body.guest-mode .rank-badge { display: none !important; }
 body.guest-mode .product-info { padding: 6px 8px 8px !important; }
-    </style>
+    /* ==============================================================
+   QUY HOẠCH LẠI TOÀN BỘ Z-INDEX (CHỐNG LỖI HIỂN THỊ CHỒNG BẢNG VĨNH VIỄN) 
+=============================================================== */
+.modal-overlay { z-index: 100 !important; }
+#agencyModal { z-index: 1000 !important; }
+#tierProgressHistoryModal { z-index: 2000 !important; }
+#redeemModal, #wheelModal, #installGuideModal { z-index: 3000 !important; }
+#redeemHistoryModal { z-index: 4000 !important; }
+#m2Modal, #debtModal, #crmModal, #historyModal, #storeDebtModal, #bankInfoModal, #tierInfoModal, #adminModal { z-index: 5000 !important; }
+#saleModal { z-index: 8000 !important; }
+#detailModal { z-index: 9000 !important; }
+#multiPriceSelectModal, #calcModal, #sharePromptModal { z-index: 9500 !important; }
+#cartModal, #exportSaveChoiceModal { z-index: 9600 !important; }
+#customConfirmModal, #customAlertModal, #spinClosedModal { z-index: 99999 !important; }
+#lightbox { z-index: 100000 !important; }
+</style>
 </head>
 <body>
     
@@ -9271,6 +9286,12 @@ const productLink = window.location.origin + window.location.pathname + '?id=' +
         function setupFileReader(inId, preId, baseSet) { const inputEl = document.getElementById(inId); if(!inputEl) return; inputEl.addEventListener('change', function(e) { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = function(ev) { const img = new Image(); img.onload = function() { const canvas = document.createElement('canvas'); const MAX_WIDTH = 800; let width = img.width; let height = img.height; if (width > MAX_WIDTH) { height = height * (MAX_WIDTH / width); width = MAX_WIDTH; } canvas.width = width; canvas.height = height; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height); const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7); if(baseSet===1) window.imgBase1 = compressedBase64; else window.imgBase2 = compressedBase64; document.getElementById(preId).src = compressedBase64; document.getElementById(preId).style.display = 'block'; }; img.src = ev.target.result; }; r.readAsDataURL(f); }); }
 
         window.initApp = function() {
+    // FIX LỖI BẢNG CHỒNG NHAU: Quét và tiêu diệt sạch các z-index rác kẹt trong HTML gốc
+    document.querySelectorAll('.modal-overlay').forEach(function(el) {
+        if(el.style.getPropertyValue('z-index')) {
+            el.style.removeProperty('z-index');
+        }
+    });
             setupFileReader('fileInput1', 'previewImg1', 1); setupFileReader('fileInput2', 'previewImg2', 2);
             const urlParams = new URLSearchParams(window.location.search); const pid = urlParams.get('id'); if(pid && window.products.length > 0) { setTimeout(() => { if (!window.currentStoreCode || window.isGuestMode) { var _authGW = document.getElementById('authGateway'); if (_authGW && document.getElementById('mainAppContent').style.display === 'none') { _authGW.style.display = 'flex'; _authGW.style.opacity = '1'; var _b = document.createElement('div'); _b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:100000;background:linear-gradient(135deg,rgba(10,132,255,0.3),rgba(191,90,242,0.3));border-bottom:0.5px solid rgba(255,255,255,0.25);padding:10px 16px;text-align:center;font-size:13px;font-weight:800;color:white;'; _b.textContent = '🔒 Vui lòng yêu cầu truy cập để xem sản phẩm này!'; document.body.appendChild(_b); setTimeout(function(){ _b.remove(); }, 5000); return; } } window.viewDetail(parseInt(pid)); }, 800); }
             
