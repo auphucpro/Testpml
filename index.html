@@ -2198,6 +2198,55 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
 #cartModal, #exportSaveChoiceModal { z-index: 9600 !important; }
 #customConfirmModal, #customAlertModal, #spinClosedModal, #deviceApproveModal { z-index: 99999 !important; }
 #lightbox { z-index: 100000 !important; }
+
+/* =========================================
+   HIỆU ỨNG NÚT ZALO TỎA SÓNG & GỌI RUNG CHUÔNG
+========================================= */
+/* 1. Zalo Tỏa Sóng Xanh */
+.btn-toa-song {
+    border-radius: 50% !important;
+    animation: toaSong 2s infinite !important;
+}
+@keyframes toaSong {
+    0% { box-shadow: 0 0 0 0 rgba(0, 132, 255, 0.7); transform: scale(1); }
+    70% { box-shadow: 0 0 0 15px rgba(0, 132, 255, 0); transform: scale(1.05); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 132, 255, 0); transform: scale(1); }
+}
+
+/* 2. Nút Gọi Rung Lắc Điên Cuồng */
+.btn-rung-chuong {
+    transform-origin: center center !important;
+    animation: rungChuong 1.5s infinite ease-in-out !important;
+}
+@keyframes rungChuong {
+    0%, 100% { transform: rotate(0) scale(1); }
+    10%, 30%, 50% { transform: rotate(-20deg) scale(1.1); }
+    20%, 40% { transform: rotate(20deg) scale(1.1); }
+    60% { transform: rotate(0) scale(1); }
+}
+
+/* =========================================
+   HIỆU ỨNG LOGO PHÁT SÁNG GRADIENT (XANH - TÍM)
+========================================= */
+.logo-phat-sang {
+    animation: glowGradientPulse 2.5s infinite alternate ease-in-out !important;
+}
+@keyframes glowGradientPulse {
+    0% {
+        /* Nhịp thở xuống: Ánh sáng mờ, logo đứng im */
+        filter: drop-shadow(-2px -2px 5px rgba(59, 130, 246, 0.4)) 
+                drop-shadow(2px 2px 5px rgba(168, 85, 247, 0.4));
+        transform: scale(1);
+    }
+    100% {
+        /* Nhịp thở lên: Tỏa hào quang Xanh góc trái, Tím góc phải hòa quyện vào nhau */
+        filter: drop-shadow(-6px -6px 18px rgba(59, 130, 246, 0.8)) 
+                drop-shadow(6px 6px 18px rgba(168, 85, 247, 0.8));
+        transform: scale(1.03); 
+    }
+}
+
+
 </style>
 </head>
 <body>
@@ -2328,7 +2377,7 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
     <div id="browserLockScreen" style="display:none;position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,0.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;text-align:center;gap:12px;">
         
         <!-- LOGO + TITLE (bấm 5 lần để mở bypass) -->
-        <img src="logochao.png" alt="Logo" id="lockLogoTap" style="width:78px;height:78px;object-fit:contain;border-radius:18px;filter:drop-shadow(0 0 18px rgba(10,132,255,0.45));cursor:pointer;" onclick="window._lockLogoTapCount()">
+        <img src="logochao.png" alt="Logo" id="lockLogoTap" class="logo-phat-sang" style="width:130px;height:130px;object-fit:contain;border-radius:18px;cursor:pointer;" onclick="window._lockLogoTapCount()">
         <div>
             <div style="font-size:17px;font-weight:900;color:#ffffff;letter-spacing:0.5px;margin-bottom:3px;">PHỤC MINH LONG CẦN THƠ</div>
             <div style="font-size:12px;color:rgba(255,255,255,0.4);font-weight:500;">Vui lòng cài đặt để tiếp tục sử dụng ứng dụng</div>
@@ -2439,7 +2488,7 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
                 COPY MÃ GẠCH
             </button>
-            <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:8px;line-height:1.5;">Mở App từ màn hình chính và dán mã này vào thanh tìm kiếm</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:8px;line-height:1.5;">Mở Ứng dụng và dán mã gạch này vào thanh tìm kiếm</div>
         </div>
 
         <!-- ANDROID: NÚT CÀI ĐẶT TRỰC TIẾP -->
@@ -2505,7 +2554,7 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
                 <span>An Toàn</span>
             </div>
         </div>
-        <div style="font-size:10px;color:rgba(255,255,255,0.22);">Không cần cài từ App Store hay CH Play</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.22);">Ứng dụng được phát triển bởi PHUC.PRO.VN </div>
     </div>
 
     <script>
@@ -2561,7 +2610,7 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
     <div id="authGateway">
         <div class="auth-box">
             <div style="text-align: center; margin-bottom: 10px;">
-                <img src="logochao.png" alt="Logo" onclick="window._authLogoTap()" style="width: 150px; height: 150px; object-fit: contain; filter: drop-shadow(0 0 15px rgba(59,130,246,0.3));">
+                <img src="logochao.png" alt="Logo" onclick="window._authLogoTap()" class="logo-phat-sang" style="width: 150px; height: 150px; object-fit: contain;">
             </div>
             <div class="auth-title" onclick="window._authLogoTap()">PHỤC MINH LONG CẦN THƠ</div>
             <div class="auth-sub">Hệ Thống Phân Phối Gạch Men</div>
@@ -2592,7 +2641,7 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
             <div id="reqAccessStatus" style="margin-top:12px; text-align:center; font-size:12px; color:rgba(255,255,255,0.45); display:none;">
                 <div style="display:flex;align-items:center;justify-content:center;gap:8px;">
                     <div style="width:10px;height:10px;border-radius:50%;background:#FF9F0A;animation:pulseDot 1.2s ease-in-out infinite;"></div>
-                    Đang chờ Admin duyệt thiết bị này...
+                    Vui lòng chờ Phục duyệt ngay...
                 </div>
             </div>
             <style>@keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.3)}}</style>
@@ -2654,7 +2703,7 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
         <div class="sticky-top">
             <header>
                 <h1 class="header-title" onclick="window.handleSecretTrigger()">PHỤC MINH LONG CẦN THƠ</h1>
-                <div class="header-sub">Đặt Hàng <strong style="color:white;">0965399774</strong> hoặc Zalo bên dưới</div>
+                <div class="header-sub">Đặt Hàng <strong style="color:white;">0965399774</strong> | PHUC.PRO.VN</div>
             </header>
             
             <div id="retailBar" class="retail-settings-bar">
@@ -2727,10 +2776,10 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
         <div id="loadMoreTrigger">Đang tải thêm sản phẩm...</div>
 
         <!-- CÁC NÚT NỔI (FAB) -->
-        <a href="tel:0965399774" id="phoneBtnUI" class="phone-float">
+                <a href="tel:0965399774" id="phoneBtnUI" class="phone-float btn-rung-chuong">
             <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
         </a>
-        <a href="https://zalo.me/0965399774" id="zaloBtnUI" target="_blank" class="zalo-float">Zalo</a>
+        <a href="https://zalo.me/0965399774" id="zaloBtnUI" target="_blank" class="zalo-float btn-toa-song">Zalo</a>
 
         <button class="fab-cart" id="fabCart" onclick="window.openCartModal()" style="display: none;">
             <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg> <div class="cart-badge"
@@ -2902,8 +2951,20 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
             </div>
             
             <div style="margin-bottom: 10px;">
-                <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 5px;">Chọn Khách Hàng (In hóa đơn & Lưu Nợ):</label>
-                <div style="position:relative;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 5px;">
+        <label style="font-size: 12px; color: var(--text-muted); display: block;">Chọn Khách Hàng (In hóa đơn & Lưu Nợ):</label>
+        
+        <div style="display:flex; align-items:center; gap:5px; background:rgba(48,209,88,0.15); border:0.5px solid rgba(48,209,88,0.3); padding:3px 8px; border-radius:20px;">
+            <span style="font-size:9px; font-weight:900; color:#30D158;">TIỀN MẶT</span>
+            <label class="small-toggle" style="margin:0;">
+                <input type="checkbox" id="isPaidOrderToggle">
+                <span class="small-slider" style="border:0.5px solid rgba(48,209,88,0.5);"></span>
+            </label>
+        </div>
+        <style>#isPaidOrderToggle:checked + .small-slider { background-color: #30D158 !important; }</style>
+    </div>
+    <div style="position:relative;">
+
                     <div style="display:flex; align-items:center; background:linear-gradient(135deg,rgba(10,132,255,0.12),rgba(191,90,242,0.12)); border:0.5px solid rgba(255,255,255,0.2); border-radius:20px; padding:0 10px; height:42px;">
                         <svg width="14" height="14" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="flex-shrink:0;"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
                         <input type="text" id="cartAgencySearchInput" class="form-control" placeholder="Tìm tên hoặc mã cửa hàng..." oninput="window.onCartAgencySearch(this.value)" style="background:transparent; border:none; padding:0 8px; margin:0; font-size:13px; height:100%; outline:none; flex:1;" autocomplete="off" autocapitalize="off">
@@ -7731,7 +7792,7 @@ window.handleAgencySubmit = function(e) {
                 card.setAttribute('data-id', p.id); card.style.animationDelay = (i * 0.05) + 's'; 
                 card.onclick = function() { 
                     if(window.isGuestMode) { 
-                        window.showToast('Liên hệ Phục Minh Long để được cấp mã đăng nhập!'); 
+                        window.showToast('Alo Phục Minh Long để lấy ID cửa hàng'); 
                         return; 
                     }
                     window.viewDetail(p.id); 
@@ -8230,18 +8291,53 @@ if(document.getElementById('pCdMin')) document.getElementById('pCdMin').value = 
                 if(!targetAg) { targetAg = { id: Date.now(), code: 'khachvanglai', name: 'Khách Vãng Lai', region: 'Auto', phone: '', bought: 0, points: 0, debt: 0, isVip: false, crmHistory: [], spinHistory: [], debtHistory: [] }; window.agencies.push(targetAg); }
             }
             if(targetAg) { 
-                targetAg.debt = (targetAg.debt || 0) + finalTotalVal; 
-                targetAg.bought = (targetAg.bought || 0) + totalM2Val;
-                targetAg.points = (targetAg.points !== undefined ? targetAg.points : targetAg.bought) + totalM2Val;
-                if(!targetAg.crmHistory) targetAg.crmHistory = [];
-                if(!targetAg.debtHistory) targetAg.debtHistory = [];
-                const now = new Date();
-                const dateStr = now.toLocaleDateString('vi-VN') + ' ' + now.toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'});
-                const codeList = window.draftCart.map(ci => ci.code).join(', ');
-                const autoOrderName = codeList + ' — ' + now.toLocaleDateString('vi-VN');
-                targetAg.crmHistory.push({ time: Date.now(), type: 'add', amount: parseFloat(totalM2Val.toFixed(2)), orderName: autoOrderName });
-                targetAg.debtHistory.push({ type: 'add', amount: finalTotalVal, orderName: autoOrderName, date: now.getTime(), dateStr: dateStr, paid: false, voucherCode: window._cartSelectedVoucher || '' });
-                window.saveAgenciesToDB(); window.showToast("Đã lưu nợ & m² thành công!"); 
+                        // Bắt trạng thái nút gạt "Tiền mặt"
+        var isPaid = document.getElementById('isPaidOrderToggle') ? document.getElementById('isPaidOrderToggle').checked : false;
+
+        // Nếu KHÔNG BẬT nút Tiền mặt -> Cộng Nợ bình thường
+        if (!isPaid) {
+            targetAg.debt = (targetAg.debt || 0) + finalTotalVal;
+        }
+
+        // LUÔN LUÔN cộng điểm và mét
+        targetAg.bought = (targetAg.bought || 0) + totalM2Val;
+        targetAg.points = (targetAg.points !== undefined ? targetAg.points : targetAg.bought) + totalM2Val;
+
+        if(!targetAg.crmHistory) targetAg.crmHistory = [];
+        if(!targetAg.debtHistory) targetAg.debtHistory = [];
+
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('vi-VN') + ' ' + now.toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'});
+        const codeList = window.draftCart.map(ci => ci.code).join(', ');
+        const autoOrderName = codeList + ' — ' + now.toLocaleDateString('vi-VN');
+
+        // Ghi lại lịch sử lấy mét/điểm
+        targetAg.crmHistory.push({
+            time: Date.now(),
+            type: 'add',
+            amount: parseFloat(totalM2Val.toFixed(2)),
+            orderName: autoOrderName + (isPaid ? ' (Thu tiền mặt)' : '')
+        });
+
+        // Ghi vào sổ nợ (Nếu đã thanh toán thì chui thẳng vào tab Lịch sử Đã TT)
+        targetAg.debtHistory.push({
+            type: 'add',
+            amount: finalTotalVal,
+            orderName: autoOrderName,
+            date: now.getTime(),
+            dateStr: dateStr,
+            paid: isPaid, // Phép thuật nằm ở đây: true là bay thẳng sang tab Đã Thanh Toán!
+            voucherCode: window._cartSelectedVoucher || ''
+        });
+        
+        window.saveAgenciesToDB();
+        
+        // Thông báo chuyên nghiệp tùy theo trạng thái
+        if (isPaid) {
+            window.showToast("Đã lưu ĐƠN TIỀN MẶT & m² thành công!");
+        } else {
+            window.showToast("Đã lưu Nợ & m² thành công!");
+        } 
             }
         };
 
@@ -8848,9 +8944,7 @@ if(document.getElementById('pCdMin')) document.getElementById('pCdMin').value = 
                 document.getElementById('shareUserInputs').style.display = 'none';
                 document.getElementById('shareAdminInputs').style.display = 'block';
                 document.querySelectorAll('.modal-overlay').forEach(function(el){ el.classList.remove('show'); });
-                document.body.classList.remove('modal-open');
-                window.scrollTo(0, 0);
-                setTimeout(function(){ window.openModal('sharePromptModal'); }, 80);
+                        setTimeout(function(){ window.openModal('sharePromptModal'); }, 80);
             } else {
                 // Khách hàng: bỏ qua bước nhập số lượng, gửi thẳng
                 document.querySelectorAll('.modal-overlay').forEach(function(el){ el.classList.remove('show'); });
@@ -8860,62 +8954,61 @@ if(document.getElementById('pCdMin')) document.getElementById('pCdMin').value = 
         };
 
         window.executeShare = async function() {
-            window.closeModal('sharePromptModal');
-            const p = window.products.find(x => x.id === window.viewingId);
-            if(!p) return;
-            const shipFee = window.getShippingFee();
-            let priceText = '';
-            const labelKho = window.isRetailMode ? 'Bán Lẻ' : 'Nhận Kho';
+    window.closeModal('sharePromptModal');
+    const p = window.products.find(x => x.id === window.viewingId);
+    if(!p) return;
+    const shipFee = window.getShippingFee();
+    let priceText = '';
+    const labelKho = window.isRetailMode ? 'Bán Lẻ' : 'Nhận Kho';
 
-            // ===== HÀM CHUYỂN SANG UNICODE BOLD (hiển thị đậm trên Zalo & mọi nền tảng) =====
-            // Chỉ bold được số 0-9 và chữ Latin a-z, A-Z (không bold được tiếng Việt có dấu)
-            const toBold = function(str) {
-                str = String(str);
-                return str.replace(/[0-9A-Za-z]/g, function(c) {
-                    if (c >= '0' && c <= '9') return String.fromCodePoint(0x1D7CE + (c.charCodeAt(0) - 48));
-                    if (c >= 'A' && c <= 'Z') return String.fromCodePoint(0x1D400 + (c.charCodeAt(0) - 65));
-                    if (c >= 'a' && c <= 'z') return String.fromCodePoint(0x1D41A + (c.charCodeAt(0) - 97));
-                    return c;
-                });
-            };
+    // ===== HÀM CHUYỂN SANG UNICODE BOLD (hiển thị đậm trên Zalo & mọi nền tảng) =====
+    // Chỉ bold được số 0-9 và chữ Latin a-z, A-Z (không bold được tiếng Việt có dấu)
+    const toBold = function(str) {
+        str = String(str);
+        return str.replace(/[0-9A-Za-z]/g, function(c) {
+            if (c >= '0' && c <= '9') return String.fromCodePoint(0x1D7CE + (c.charCodeAt(0) - 48));
+            if (c >= 'A' && c <= 'Z') return String.fromCodePoint(0x1D400 + (c.charCodeAt(0) - 65));
+            if (c >= 'a' && c <= 'z') return String.fromCodePoint(0x1D41A + (c.charCodeAt(0) - 97));
+            return c;
+        });
+    };
 
-            if(p.priceType === 'multi' && p.priceMulti) {
-                const midName = p.priceMulti.midType === 'Đậm' ? 'Đậm' : 'Viền';
-                const cT = p.priceMulti.codeThan ? ` (Mã: ${toBold(p.priceMulti.codeThan)})` : '';
-                const cM = p.priceMulti.codeMid ? ` (Mã: ${toBold(p.priceMulti.codeMid)})` : '';
-                const cD = p.priceMulti.codeDiem ? ` (Mã: ${toBold(p.priceMulti.codeDiem)})` : '';
-                const pT = toBold(window.getRetailPrice(p.priceMulti.than) + 'k/m');
-                const pM = toBold(window.getRetailPrice(p.priceMulti.midPrice) + 'k/m');
-                const pD = toBold(window.getRetailPrice(p.priceMulti.diem) + 'k/m');
-                priceText = `🏠 ${labelKho}:\n🔸Thân${cT}: ${pT}\n🔸${midName}${cM}: ${pM}\n🔸Điểm${cD}: ${pD}`;
-            } else {
-                priceText = `🏠 ${labelKho}: ${toBold(window.getRetailPrice(p.price) + 'k/m')}`;
-            }
+    if(p.priceType === 'multi' && p.priceMulti) {
+        const midName = p.priceMulti.midType === 'Đậm' ? 'Đậm' : 'Viền';
+        // Đã xóa phần hiển thị mã dài dòng theo yêu cầu
+        const pT = toBold(window.getRetailPrice(p.priceMulti.than) + 'k/m');
+        const pM = toBold(window.getRetailPrice(p.priceMulti.midPrice) + 'k/m');
+        const pD = toBold(window.getRetailPrice(p.priceMulti.diem) + 'k/m');
+        priceText = `🏠 ${labelKho}:\n🔸Thân: ${pT}\n🔸${midName}: ${pM}\n🔸Điểm: ${pD}`;
+    } else {
+        priceText = `🏠 ${labelKho}: ${toBold(window.getRetailPrice(p.price) + 'k/m')}`;
+    }
 
-            const shipText = window.isRetailMode ? '' : `\n🚛Giao CH/Chành: ${toBold('+' + shipFee + 'k/m')}`;
-const productLink = window.location.origin + window.location.pathname + '?id=' + p.id + '&code=' + encodeURIComponent(p.code);
-            let shareText = '';
+    const shipText = window.isRetailMode ? '' : `\n🚛Giao CH/Chành: ${toBold('+' + shipFee + 'k/m')}`;
+    const productLink = window.location.origin + window.location.pathname + '?id=' + p.id + '&code=' + encodeURIComponent(p.code);
+    let shareText = '';
 
-            if(window.isAdmin) {
-                const pronoun = document.getElementById('adminPronounSelect').value;
-                shareText = `🔥${p.name}\n👉MS: ${toBold(p.code)}\n📐KT: ${toBold(p.size)}\n${priceText}${shipText}\n✨Dạ em gửi ${pronoun} ạ.\n\n🔗 Link SP: ${productLink}`;
-            } else {
-                shareText = `🔥${p.name}\n✨MS: ${toBold(p.code)}\n📐KT: ${toBold(p.size)}\n${priceText}${shipText}\n\n🔗 Link SP: ${productLink}`;
-            }
+    if(window.isAdmin) {
+        const pronoun = document.getElementById('adminPronounSelect').value;
+        shareText = `• ${p.name}\n• MS: ${toBold(p.code)}\n• KT: ${toBold(p.size)}\n${priceText}${shipText}\n• Dạ em gửi ${pronoun} ạ.\n\n• Link SP: ${productLink}`;
+    } else {
+        // Đã thêm dòng hỏi còn hàng không dành riêng cho máy Khách Hàng
+        shareText = `• ${p.name}\n• MS: ${toBold(p.code)}\n• KT: ${toBold(p.size)}\n${priceText}${shipText}\n❓ Xem này còn hàng không?\n\n• Link SP: ${productLink}`;
+    }
 
-            window.copyToClipboardFallback(shareText);
-            try {
-                if (navigator.canShare && navigator.canShare({ files: [window.preparedShareFile] })) {
-                    await navigator.share({ text: shareText, files: [window.preparedShareFile] });
-                } else {
-                    await navigator.share({ text: shareText });
-                }
-            } catch (err) {
-                if (err.name !== 'AbortError') {
-                    window.showToast("Đã copy báo giá. Hãy mở danh bạ Zalo lên dán vào nhé!");
-                }
-            }
-        };
+    window.copyToClipboardFallback(shareText);
+    try {
+        if (navigator.canShare && navigator.canShare({ files: [window.preparedShareFile] })) {
+            await navigator.share({ text: shareText, files: [window.preparedShareFile] });
+        } else {
+            await navigator.share({ text: shareText });
+        }
+    } catch (err) {
+        if (err.name !== 'AbortError') {
+            window.showToast("Đã copy báo giá. Hãy mở danh bạ Zalo lên dán vào nhé!");
+        }
+    }
+};
 
         // ===== CẤP MÃ ƯU ĐÃI (ADMIN DIRECT ISSUE) =====
         window._issueVoucherSelectedCode = null;
@@ -9492,7 +9585,7 @@ window.requestDeviceAccess = function() {
     var storeName = nameInput ? nameInput.value.trim() : '';
 
     if (!storeName) {
-        if (window.showToast) window.showToast('Vui lòng nhập Tên hoặc Mã cửa hàng!');
+        if (window.showToast) window.showToast('Vui lòng nhập ID hoặc Tên cửa hàng!');
         return;
     }
 
