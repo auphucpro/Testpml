@@ -2196,7 +2196,7 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
 #detailModal { z-index: 9000 !important; }
 #multiPriceSelectModal, #calcModal, #sharePromptModal { z-index: 9500 !important; }
 #cartModal, #exportSaveChoiceModal { z-index: 9600 !important; }
-#customConfirmModal, #customAlertModal, #spinClosedModal { z-index: 99999 !important; }
+#customConfirmModal, #customAlertModal, #spinClosedModal, #deviceApproveModal { z-index: 99999 !important; }
 #lightbox { z-index: 100000 !important; }
 </style>
 </head>
@@ -6507,112 +6507,103 @@ window.updateWheelPointsDisplay = function(store) {
         };
 
         window.approveRedeem = function(key, storeCode, rewardPts, rewardLabel) {
+    if (window._isAdminProcessing) { window.showToast('Vui lòng chờ tác vụ trước xử lý xong!'); return; }
+    
     window.appConfirm('Xác Nhận', 'Duyệt yêu cầu & Cấp mã giảm giá cho cửa hàng này?', function() {
+        window._isAdminProcessing = true; // Khóa UI không cho bấm loạn
         var voucherCode = window.genVoucherCode();
         var now = Date.now();
         var nowStr = new Date().toLocaleString('vi-VN');
 
         if (dbRef) {
-            // FIX LỖI: Tải dữ liệu mới nhất từ máy chủ trước khi duyệt để không đè mất lịch sử trừ điểm
-            dbRef.child('agencies').once('value').then(function(snap) {
-                if (snap.val()) window.agencies = Array.isArray(snap.val()) ? snap.val() : Object.values(snap.val());
-                
-                firebase.database().ref('phucminhlong_redeem_requests/' + key)
-                    .update({
-                        status: 'approved',
-                        voucherCode: voucherCode,
-                        approvedAt: now,
-                        approvedAtStr: nowStr
-                    })
-                    .then(function() {
-                        var ag = window.agencies.find(function(a){ return a.code === storeCode; });
-                        if (ag) {
-                            if (!ag.redeemHistory) ag.redeemHistory = [];
-                            var histItem = ag.redeemHistory.find(function(h){ return h._firebaseKey === key; }) || ag.redeemHistory.find(function(h){ return h.status === 'pending' && h.rewardLabel === rewardLabel; });
-                            if (histItem) {
-                                histItem.status = 'approved';
-                                histItem.voucherCode = voucherCode;
-                                histItem.approvedAt = now;
-                                histItem.approvedAtStr = nowStr;
-                                histItem.issuedByAdmin = false;
-                                histItem._firebaseKey = key;
-                            } else {
-                                ag.redeemHistory.push({
-                                    status: 'approved',
-                                    rewardLabel: rewardLabel,
-                                    rewardPts: rewardPts,
-                                    voucherCode: voucherCode,
-                                    approvedAt: now,
-                                    approvedAtStr: nowStr,
-                                    requestedAtStr: nowStr,
-                                    issuedByAdmin: false,
-                                    usedInOrder: false,
-                                    _firebaseKey: key
-                                });
-                            }
-                            window.saveAgenciesToDB();
-                        }
-                        firebase.database().ref('phucminhlong_redeem_notify/' + storeCode)
-                            .set({ voucherCode: voucherCode, rewardLabel: rewardLabel, approvedAt: now, seen: false });
-                        
+            // FIX LỖI: DÙNG TRANSACTION XẾP HÀNG XỬ LÝ DỮ LIỆU CHỐNG GHI ĐÈ
+            dbRef.child('agencies').transaction(function(agenciesData) {
+                if (!agenciesData) return agenciesData;
+                var agenciesArray = Array.isArray(agenciesData) ? agenciesData : Object.values(agenciesData);
+                var ag = agenciesArray.find(function(a){ return a.code === storeCode; });
+                if (ag) {
+                    if (!ag.redeemHistory) ag.redeemHistory = [];
+                    var histItem = ag.redeemHistory.find(function(h){ return h._firebaseKey === key; }) || ag.redeemHistory.find(function(h){ return h.status === 'pending' && h.rewardLabel === rewardLabel; });
+                    
+                    if (histItem && histItem.status !== 'approved') {
+                        histItem.status = 'approved';
+                        histItem.voucherCode = voucherCode;
+                        histItem.approvedAt = now;
+                        histItem.approvedAtStr = nowStr;
+                        histItem.issuedByAdmin = false;
+                        histItem._firebaseKey = key;
+                    }
+                }
+                return agenciesData;
+            }, function(error, committed, snapshot) {
+                if (committed) {
+                    window.agencies = Array.isArray(snapshot.val()) ? snapshot.val() : Object.values(snapshot.val());
+                    firebase.database().ref('phucminhlong_redeem_requests/' + key).update({
+                        status: 'approved', voucherCode: voucherCode, approvedAt: now, approvedAtStr: nowStr
+                    }).then(function() {
+                        firebase.database().ref('phucminhlong_redeem_notify/' + storeCode).set({ voucherCode: voucherCode, rewardLabel: rewardLabel, approvedAt: now, seen: false });
                         window.showToast('Đã duyệt! Mã voucher: ' + voucherCode);
                         window.loadRedeemRequests();
                         if (window._redeemSubTab === 'approved') window.loadApprovedVouchers();
-                    })
-                    .catch(function() {
-                        window.showToast('⚠️ Lỗi kết nối Firebase, thử lại!');
-                    });
+                        window._isAdminProcessing = false; // Mở khóa UI
+                    }).catch(function(){ window._isAdminProcessing = false; });
+                } else {
+                    window.showToast('⚠️ Lỗi đồng bộ!');
+                    window._isAdminProcessing = false;
+                }
             });
         }
     });
 };
 
 window.rejectRedeem = function(key, storeCode, rewardLabel) {
+    if (window._isAdminProcessing) { window.showToast('Vui lòng chờ tác vụ trước xử lý xong!'); return; }
+    
     window.appConfirm('Từ Chối', 'Huỷ yêu cầu đổi điểm này?<br>Điểm sẽ được <b>hoàn lại</b> cho cửa hàng.', function() {
+        window._isAdminProcessing = true; // Khóa UI
         var rejectedAt = Date.now();
+        
         if (dbRef) {
-            // FIX LỖI: Tải dữ liệu mới nhất từ máy chủ trước khi từ chối để hoàn điểm CHUẨN XÁC
-            dbRef.child('agencies').once('value').then(function(snap) {
-                if (snap.val()) window.agencies = Array.isArray(snap.val()) ? snap.val() : Object.values(snap.val());
-                
-                firebase.database().ref('phucminhlong_redeem_requests/' + key)
-                    .update({ status: 'rejected', rejectedAt: rejectedAt })
-                    .then(function() {
-                        var ag = window.agencies.find(function(a){ return a.code === storeCode; });
-                        if (ag) {
-                            if (!ag.redeemHistory) ag.redeemHistory = [];
-                            var histItem = ag.redeemHistory.find(function(h){ return h._firebaseKey === key; }) || ag.redeemHistory.find(function(h){ return h.status === 'pending' && h.rewardLabel === rewardLabel; });
-                            if (histItem) {
-                                // Hoàn điểm chuẩn xác dựa trên số điểm thực tế hiện tại
-                                ag.points = (ag.points || 0) + (histItem.rewardPts || 0);
-                                histItem.status = 'rejected';
-                                histItem.rejectedAtStr = new Date().toLocaleString('vi-VN');
-                                histItem._firebaseKey = key;
-                                
-                                if (!ag.crmHistory) ag.crmHistory = [];
-                                var redeemEntry = ag.crmHistory.find(function(c){ return c._redeemKey === key; });
-                                if (redeemEntry) {
-                                    redeemEntry._redeemRejected = true;
-                                }
-                                ag.crmHistory.push({
-                                    time: Date.now(),
-                                    type: 'redeemRefund',
-                                    refundBy: 'admin',
-                                    amount: histItem.rewardPts || 0,
-                                    orderName: histItem.rewardLabel || rewardLabel
-                                });
-                            }
-                            window.saveAgenciesToDB();
-                        }
-                        firebase.database().ref('phucminhlong_redeem_notify/' + storeCode)
-                            .set({ rejected: true, rewardLabel: rewardLabel, rejectedAt: rejectedAt, seen: false });
+            // FIX LỖI: DÙNG TRANSACTION ĐỂ CHẮC CHẮN ĐIỂM HOÀN KHÔNG BỊ MẤT
+            dbRef.child('agencies').transaction(function(agenciesData) {
+                if (!agenciesData) return agenciesData;
+                var agenciesArray = Array.isArray(agenciesData) ? agenciesData : Object.values(agenciesData);
+                var ag = agenciesArray.find(function(a){ return a.code === storeCode; });
+                if (ag) {
+                    if (!ag.redeemHistory) ag.redeemHistory = [];
+                    var histItem = ag.redeemHistory.find(function(h){ return h._firebaseKey === key; }) || ag.redeemHistory.find(function(h){ return h.status === 'pending' && h.rewardLabel === rewardLabel; });
+                    
+                    // CHỈ HOÀN ĐIỂM NẾU CHƯA BỊ TỪ CHỐI (Chống hoàn điểm 2 lần)
+                    if (histItem && histItem.status !== 'rejected') {
+                        ag.points = (ag.points || 0) + (histItem.rewardPts || 0);
+                        histItem.status = 'rejected';
+                        histItem.rejectedAtStr = new Date().toLocaleString('vi-VN');
+                        histItem._firebaseKey = key;
                         
-                        window.showToast('Đã từ chối & hoàn điểm.');
+                        if (!ag.crmHistory) ag.crmHistory = [];
+                        ag.crmHistory.push({
+                            time: Date.now(),
+                            type: 'redeemRefund',
+                            refundBy: 'admin',
+                            amount: histItem.rewardPts || 0,
+                            orderName: histItem.rewardLabel || rewardLabel
+                        });
+                    }
+                }
+                return agenciesData;
+            }, function(error, committed, snapshot) {
+                if (committed) {
+                    window.agencies = Array.isArray(snapshot.val()) ? snapshot.val() : Object.values(snapshot.val());
+                    firebase.database().ref('phucminhlong_redeem_requests/' + key).update({ status: 'rejected', rejectedAt: rejectedAt }).then(function() {
+                        firebase.database().ref('phucminhlong_redeem_notify/' + storeCode).set({ rejected: true, rewardLabel: rewardLabel, rejectedAt: rejectedAt, seen: false });
+                        window.showToast('Đã từ chối & hoàn điểm thành công.');
                         window.loadRedeemRequests();
-                    })
-                    .catch(function() {
-                        window.showToast('⚠️ Lỗi kết nối Firebase, thử lại!');
-                    });
+                        window._isAdminProcessing = false; // Mở khóa UI
+                    }).catch(function(){ window._isAdminProcessing = false; });
+                } else {
+                    window.showToast('⚠️ Lỗi đồng bộ!');
+                    window._isAdminProcessing = false;
+                }
             });
         }
     });
