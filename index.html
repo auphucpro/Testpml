@@ -5804,19 +5804,19 @@ window.updateWheelPointsDisplay = function(store) {
         };
 
         window.submitRedeemRequest = function() {
-    if (window._isSubmittingRedeem) return; // Đang gửi thì chặn bấm lại
+    if (window._isSubmittingRedeem) return; // Chặn bấm liên tục 
     if (!window._redeemSelected || !window.currentStoreCode) return;
-    const ag = window.agencies.find(a => a.code === window.currentStoreCode);
-    if (!ag) return;
+    const agLocal = window.agencies.find(a => a.code === window.currentStoreCode);
+    if (!agLocal) return;
     const reward = window.redeemConfig.rewards.find(r => r.id === window._redeemSelected);
     if (!reward) return;
     
-    // Kiểm tra nhanh local trước khi gọi mạng để tránh gọi mạng vô ích
-    if ((ag.points || 0) < reward.pts) {
+    // Kiểm tra điểm sơ bộ
+    if ((agLocal.points || 0) < reward.pts) {
         window.showToast('Không đủ điểm!');
         return;
     }
-    const bought = Math.floor(ag.bought || 0);
+    const bought = Math.floor(agLocal.bought || 0);
     const rankInfo = window.getRankInfo(bought);
     const myRankOrder = RANK_ORDER[rankInfo.init] || 0;
     if (myRankOrder < (RANK_ORDER[reward.minRank] || 0)) {
@@ -5824,12 +5824,12 @@ window.updateWheelPointsDisplay = function(store) {
         return;
     }
     const requiresVip = (RANK_ORDER[reward.minRank] || 0) >= 2;
-    if (requiresVip && !ag.isVip) {
+    if (requiresVip && !agLocal.isVip) {
         window.showToast('Cần kích hoạt Thăng Hạng để đổi gói Bạch Kim trở lên!');
         return;
     }
 
-    // ── HIỂN THỊ TRẠNG THÁI ĐANG GỬI ──
+    // Hiển thị trạng thái đang tải
     const btn = document.getElementById('redeemSubmitBtn');
     const originalHTML = btn.innerHTML;
     btn.innerHTML = `<svg style="animation: spinLightBorder 1s linear infinite; flex-shrink: 0;" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg> <span style="margin-top: 1px;">Đang xử lý...</span>`;
@@ -5852,91 +5852,99 @@ window.updateWheelPointsDisplay = function(store) {
         return;
     }
 
-    // FIX LỖI: TẢI ĐIỂM MỚI NHẤT TỪ MẠNG TRƯỚC KHI TRỪ ĐỂ TRÁNH MẤT ĐIỂM DO CHƯA F5
-    dbRef.child('agencies').once('value').then(function(snap) {
-        if (snap.val()) window.agencies = Array.isArray(snap.val()) ? snap.val() : Object.values(snap.val());
-        
-        const latestAg = window.agencies.find(a => a.code === window.currentStoreCode);
-        if (!latestAg) { finishRedeemBtn(); return; }
-        
-        const latestPts = latestAg.points || 0;
-        
-        // Cập nhật lại UI nếu điểm bị lệch
-        var ptsEl = document.getElementById('redeemCurrentPts');
-        if (ptsEl) ptsEl.textContent = latestPts.toLocaleString('vi-VN');
+    // TẠO REF REQUEST MỚI ĐỂ LẤY KEY FIREBASE TRƯỚC
+    const redeemRef = firebase.database().ref('phucminhlong_redeem_requests');
+    const newReqRef = redeemRef.push();
+    const reqKey = newReqRef.key;
 
-        if (latestPts < reward.pts) {
-            finishRedeemBtn();
-            window.showToast('Lỗi! Điểm thực tế của bạn hiện tại chỉ còn ' + latestPts + ' điểm!');
-            return;
-        }
-
-        const requestData = {
-            storeCode: latestAg.code,
-            storeName: latestAg.name,
-            storePhone: latestAg.phone || '',
-            storeRank: rankInfo.init,
-            currentPts: latestPts,
-            rewardId: reward.id,
-            rewardLabel: reward.label,
-            rewardPts: reward.pts,
-            note: note,
-            status: 'pending',
-            requestedAt: Date.now(),
-            requestedAtStr: new Date().toLocaleString('vi-VN')
-        };
-
-        const redeemRef = firebase.database().ref('phucminhlong_redeem_requests');
-        redeemRef.push(requestData).then((reqSnap) => {
-            // ── TRỪ ĐIỂM DỰA TRÊN ĐIỂM THỰC TẾ ──
-            latestAg.points = Math.max(0, latestPts - reward.pts);
+    // FIX LỖI: DÙNG TRANSACTION Ở MÁY KHÁCH CHỐNG GHI ĐÈ LỆNH CỦA ADMIN
+    dbRef.child('agencies').transaction(function(agenciesData) {
+        if (!agenciesData) return agenciesData;
+        var agenciesArray = Array.isArray(agenciesData) ? agenciesData : Object.values(agenciesData);
+        var ag = agenciesArray.find(function(a){ return a.code === window.currentStoreCode; });
+        if (ag) {
+            const latestPts = ag.points || 0;
+            if (latestPts < reward.pts) {
+                return; // Điểm thực tế không đủ -> Hủy transaction an toàn
+            }
             
-            if (!latestAg.redeemHistory) latestAg.redeemHistory = [];
-            latestAg.redeemHistory.push({ ...requestData, _firebaseKey: reqSnap.key });
+            // TRỪ ĐIỂM DỰA TRÊN ĐIỂM SERVER, KHÔNG GHI ĐÈ CÁC ĐẠI LÝ KHÁC
+            ag.points = latestPts - reward.pts;
             
-            if (!latestAg.crmHistory) latestAg.crmHistory = [];
-            latestAg.crmHistory.push({
+            const requestData = {
+                storeCode: ag.code,
+                storeName: ag.name,
+                storePhone: ag.phone || '',
+                storeRank: rankInfo.init,
+                currentPts: latestPts,
+                rewardId: reward.id,
+                rewardLabel: reward.label,
+                rewardPts: reward.pts,
+                note: note,
+                status: 'pending',
+                requestedAt: Date.now(),
+                requestedAtStr: new Date().toLocaleString('vi-VN')
+            };
+
+            if (!ag.redeemHistory) ag.redeemHistory = [];
+            ag.redeemHistory.push({ ...requestData, _firebaseKey: reqKey });
+            
+            if (!ag.crmHistory) ag.crmHistory = [];
+            ag.crmHistory.push({
                 time: Date.now(),
                 type: 'redeem',
                 amount: reward.pts,
                 orderName: reward.label,
-                _redeemKey: reqSnap.key
+                _redeemKey: reqKey
             });
-            window.saveAgenciesToDB();
-            window.renderProgressBar(latestAg.code);
-
-            // ── CẬP NHẬT GIAO DIỆN SAU KHI TRỪ ──
-            if (ptsEl) ptsEl.textContent = (latestAg.points || 0).toLocaleString('vi-VN');
-
-            // Làm mờ các lựa chọn không đủ điểm
-            if (window.redeemConfig && window.redeemConfig.rewards) {
-                window.redeemConfig.rewards.forEach(function(r) {
-                    var optEl = document.getElementById('redeemOpt_' + r.id);
-                    if (optEl && latestAg.points < r.pts) {
-                        optEl.style.opacity = '0.42';
-                        optEl.style.pointerEvents = 'none';
-                        optEl.onclick = null;
-                    }
-                });
-            }
-
-            window._redeemSelected = null;
-            var submitBtnEl = document.getElementById('redeemSubmitBtn');
-            if (submitBtnEl) {
-                submitBtnEl.style.opacity = '0.4';
-                submitBtnEl.style.pointerEvents = 'none';
-            }
-
-            // ── GỬI TELEGRAM ──
-            var rankNames = { 'B':'🥈 Bạc', 'V':'🥇 Vàng', 'BK':'💎 Bạch Kim', 'KC':'💠 Kim Cương', 'VIP':'👑 VIP' };
-            var tgMsg = '🎁 YÊU CẦU ĐỔI ĐIỂM\n━━━━━━━━━━━━━━━━\n🏪 ' + latestAg.name + ' (' + latestAg.code + ')\n' + (latestAg.phone ? '📞 SĐT: ' + latestAg.phone + '\n' : '') + '🏅 Hạng: ' + (rankNames[rankInfo.init] || rankInfo.init) + '\n' + '⭐ Điểm dùng: ' + reward.pts + ' điểm\n' + '🎁 Gói đổi: ' + reward.label + '\n' + (note ? '📝 Ghi chú: ' + note + '\n' : '') + '⏰ Lúc: ' + new Date().toLocaleString('vi-VN') + '\n' + '━━━━━━━━━━━━━━━━\n' + '👉 Vào QL Đại Lý → Đổi Điểm để duyệt và cấp mã!';
             
-            if (TELEGRAM_TOKEN && TELEGRAM_CHAT_ID) {
+            window._tempReqData = requestData;
+            return agenciesData; 
+        }
+        return agenciesData;
+    }, function(error, committed, snapshot) {
+        if (error || !committed) {
+            finishRedeemBtn();
+            window.showToast('Lỗi! Bạn không đủ điểm hoặc đã có yêu cầu khác đang chờ xử lý.');
+            return;
+        }
+
+        // NẾU TRANSACTION THÀNH CÔNG -> CẬP NHẬT GIAO DIỆN KHÁCH HÀNG TỨC THÌ
+        window.agencies = Array.isArray(snapshot.val()) ? snapshot.val() : Object.values(snapshot.val());
+        const updatedAg = window.agencies.find(a => a.code === window.currentStoreCode);
+        
+        var ptsEl = document.getElementById('redeemCurrentPts');
+        if (ptsEl) ptsEl.textContent = (updatedAg.points || 0).toLocaleString('vi-VN');
+        window.renderProgressBar(updatedAg.code);
+
+        if (window.redeemConfig && window.redeemConfig.rewards) {
+            window.redeemConfig.rewards.forEach(function(r) {
+                var optEl = document.getElementById('redeemOpt_' + r.id);
+                if (optEl && updatedAg.points < r.pts) {
+                    optEl.style.opacity = '0.42';
+                    optEl.style.pointerEvents = 'none';
+                    optEl.onclick = null;
+                }
+            });
+        }
+        window._redeemSelected = null;
+        var submitBtnEl = document.getElementById('redeemSubmitBtn');
+        if (submitBtnEl) {
+            submitBtnEl.style.opacity = '0.4';
+            submitBtnEl.style.pointerEvents = 'none';
+        }
+
+        // ĐẨY REQUEST LÊN BẢNG CHO ADMIN DUYỆT BẰNG LỆNH SET (Đảm bảo đồng bộ)
+        newReqRef.set(window._tempReqData).then(() => {
+            var rankNames = { 'B':'🥈 Bạc', 'V':'🥇 Vàng', 'BK':'💎 Bạch Kim', 'KC':'💠 Kim Cương', 'VIP':'👑 VIP' };
+            var tgMsg = '🎁 YÊU CẦU ĐỔI ĐIỂM\n━━━━━━━━━━━━━━━━\n🏪 ' + updatedAg.name + ' (' + updatedAg.code + ')\n' + (updatedAg.phone ? '📞 SĐT: ' + updatedAg.phone + '\n' : '') + '🏅 Hạng: ' + (rankNames[rankInfo.init] || rankInfo.init) + '\n' + '⭐ Điểm dùng: ' + reward.pts + ' điểm\n' + '🎁 Gói đổi: ' + reward.label + '\n' + (note ? '📝 Ghi chú: ' + note + '\n' : '') + '⏰ Lúc: ' + new Date().toLocaleString('vi-VN') + '\n' + '━━━━━━━━━━━━━━━━\n' + '👉 Vào QL Đại Lý → Đổi Điểm để duyệt và cấp mã!';
+            
+            if (typeof TELEGRAM_TOKEN !== 'undefined' && typeof TELEGRAM_CHAT_ID !== 'undefined') {
                 fetch('https://api.telegram.org/bot' + TELEGRAM_TOKEN + '/sendMessage', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ chat_id: String(TELEGRAM_CHAT_ID), text: tgMsg, parse_mode: 'HTML' })
-                }).then(function(res) { return res.json(); }).then(function(data) {
+                }).then(function() {
                     finishRedeemBtn();
                     window.showToast('Đã gửi yêu cầu & trừ ' + reward.pts + ' điểm! Chờ Admin duyệt.');
                 }).catch(function() {
@@ -5947,13 +5955,10 @@ window.updateWheelPointsDisplay = function(store) {
                 finishRedeemBtn();
                 window.showToast('Đã gửi yêu cầu & trừ ' + reward.pts + ' điểm! Chờ Admin duyệt.');
             }
-        }).catch(function() {
+        }).catch(function(){
             finishRedeemBtn();
-            window.showToast('Lỗi kết nối, thử lại!');
+            window.showToast('Lỗi gửi yêu cầu cho Admin!');
         });
-    }).catch(function() {
-        finishRedeemBtn();
-        window.showToast('Lỗi đồng bộ dữ liệu, vui lòng kiểm tra lại mạng!');
     });
 };
         /* ============================================================
