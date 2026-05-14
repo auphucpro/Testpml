@@ -5682,8 +5682,52 @@ window.updateWheelPointsDisplay = function(store) {
         // Lắng nghe thông báo duyệt real-time từ Firebase
         window._redeemListener = null;
         window.listenRedeemApproval = function(storeCode) {
-            if (!dbRef) return;
-            if (window._redeemListener) {
+    if (!dbRef) return;
+
+    // --- ĐỒNG BỘ ĐIỂM SIÊU TỐC (NHẢY SỐ CÙNG TÍCH TẮC VỚI THÔNG BÁO) ---
+    if (!window._pointSyncActive) {
+        dbRef.child('agencies').on('value', function(snap) {
+            var data = snap.val();
+            if (!data) return;
+            window.agencies = Array.isArray(data) ? data : Object.values(data);
+            var myAg = window.agencies.find(a => a.code === storeCode);
+            if (myAg) {
+                var newPts = parseInt(myAg.points || 0);
+                
+                // Nhảy số điểm to đùng trên màn hình
+                var ptsEl = document.getElementById('redeemCurrentPts');
+                if (ptsEl) ptsEl.textContent = newPts.toLocaleString('vi-VN');
+                
+                // Nhảy thanh tiến trình (Progress Bar)
+                if (typeof window.renderProgressBar === 'function') {
+                    window.renderProgressBar(myAg.code);
+                }
+                
+                // Cập nhật độ sáng của các gói Đổi Điểm
+                if (window.redeemConfig && window.redeemConfig.rewards) {
+                    window.redeemConfig.rewards.forEach(function(r) {
+                        var optEl = document.getElementById('redeemOpt_' + r.id);
+                        if (optEl) {
+                            if (newPts < r.pts) {
+                                optEl.style.opacity = '0.42'; 
+                                optEl.style.pointerEvents = 'none'; 
+                                optEl.onclick = null;
+                            } else {
+                                optEl.style.opacity = '1'; 
+                                optEl.style.pointerEvents = 'auto'; 
+                                optEl.onclick = function() { window.selectRedeemReward(r.id); };
+                            }
+                        }
+                    });
+                }
+            }
+        });
+        window._pointSyncActive = true;
+    }
+    // -----------------------------------------------------
+
+    if (window._redeemListener) {
+
                 firebase.database().ref('phucminhlong_redeem_notify/' + storeCode).off('value', window._redeemListener);
             }
             window._redeemListener = firebase.database().ref('phucminhlong_redeem_notify/' + storeCode)
@@ -9945,70 +9989,7 @@ if (!savedCode) {
         /* POPUP CÀI ĐẶT APP — Đã tắt vì màn hình khóa đã có hướng dẫn */
         // (Popup bị ẩn theo yêu cầu — hướng dẫn cài app đã có ở màn hình khóa browserLockScreen)
 
-        /* Block PWA dự phòng đã được tích hợp vào initApp() với pwaCheckSession() */
-/* =========================================================
-   BỘ CẢM BIẾN ĐIỂM THỜI GIAN THỰC (DÀNH CHO KHÁCH HÀNG)
-   Giúp điểm nhảy số ngay lập tức khi Admin Từ chối/Xóa mã
-========================================================= */
-function listenToPointChanges() {
-    // Chỉ chạy nếu là máy Khách hàng (đã đăng nhập bằng Store Code)
-    if (typeof firebase !== 'undefined' && firebase.database && window.currentStoreCode) {
-        
-        // Lắng nghe riêng sự thay đổi của danh sách Đại lý trên Firebase
-        firebase.database().ref('agencies').on('value', function(snapshot) {
-            var data = snapshot.val();
-            if (!data) return;
-
-            var agenciesArray = Array.isArray(data) ? data : Object.values(data);
-            
-            // 1. Cập nhật lại bộ nhớ toàn cục trên máy khách
-            window.agencies = agenciesArray;
-
-            // 2. Tìm đúng dữ liệu của khách hàng hiện tại
-            var myAg = agenciesArray.find(function(a) { return a.code === window.currentStoreCode; });
-
-            if (myAg) {
-                var newPoints = parseInt(myAg.points || 0);
-
-                // --- CẬP NHẬT GIAO DIỆN KHÁCH HÀNG ---
-                
-                // A. Nhảy số điểm ở màn hình Đổi quà
-                var ptsEl = document.getElementById('redeemCurrentPts');
-                if (ptsEl) {
-                    ptsEl.textContent = newPoints.toLocaleString('vi-VN');
-                }
-
-                // B. Vẽ lại thanh tiến trình (Progress Bar) ngay lập tức
-                if (typeof window.renderProgressBar === 'function') {
-                    window.renderProgressBar(myAg.code);
-                }
-
-                // C. Cập nhật lại trạng thái các nút Đổi quà (Sáng lên nếu đủ điểm mới)
-                if (window.redeemConfig && window.redeemConfig.rewards) {
-                    window.redeemConfig.rewards.forEach(function(r) {
-                        var optEl = document.getElementById('redeemOpt_' + r.id);
-                        if (optEl) {
-                            if (newPoints < r.pts) {
-                                optEl.style.opacity = '0.42'; // Mờ đi nếu không đủ
-                                optEl.style.pointerEvents = 'none';
-                                optEl.onclick = null;
-                            } else {
-                                optEl.style.opacity = '1'; // Sáng lên nếu đủ điểm hoàn
-                                optEl.style.pointerEvents = 'auto';
-                                optEl.onclick = function() { window.selectRedeemReward(r.id); };
-                            }
-                        }
-                    });
-                }
-                
-                console.log('Đã đồng bộ điểm mới cho khách: ' + newPoints);
-            }
-        });
-    }
-}
-
-// Kích hoạt bộ cảm biến ngay khi App sẵn sàng
-setTimeout(listenToPointChanges, 2000); 
+        /* Block PWA dự phòng đã được tích hợp vào initApp() với pwaCheckSession() */ 
 
     </script>
 </body>
