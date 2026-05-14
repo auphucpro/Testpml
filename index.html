@@ -9946,6 +9946,52 @@ if (!savedCode) {
         // (Popup bị ẩn theo yêu cầu — hướng dẫn cài app đã có ở màn hình khóa browserLockScreen)
 
         /* Block PWA dự phòng đã được tích hợp vào initApp() với pwaCheckSession() */
+/* =========================================================
+   HỆ THỐNG ĐỒNG BỘ ĐIỂM THỜI GIAN THỰC (REAL-TIME SYNC)
+   Tự động nhảy điểm và cập nhật giao diện mà KHÔNG CẦN F5 (Tải lại)
+========================================================= */
+if (typeof firebase !== 'undefined' && firebase.database) {
+    firebase.database().ref('agencies').on('value', function(snap) {
+        if (!snap.val()) return;
+        
+        // 1. Cập nhật ngầm bộ nhớ của toàn bộ App ngay lập tức
+        var agenciesData = Array.isArray(snap.val()) ? snap.val() : Object.values(snap.val());
+        window.agencies = agenciesData; 
+        
+        // 2. Nếu Khách hàng đang mở App -> Tự động nhảy số điểm trên màn hình
+        if (window.currentStoreCode) {
+            var ag = window.agencies.find(function(a) { return a.code === window.currentStoreCode; });
+            if (ag) {
+                // Nhảy số điểm hiển thị
+                var ptsEl = document.getElementById('redeemCurrentPts');
+                if (ptsEl) ptsEl.textContent = (ag.points || 0).toLocaleString('vi-VN');
+                
+                // Thanh tiến trình nhảy theo
+                if (typeof window.renderProgressBar === 'function') {
+                    window.renderProgressBar(ag.code);
+                }
+                
+                // Tự động Mở/Khóa các nút đổi mã theo số điểm mới nhất
+                if (window.redeemConfig && window.redeemConfig.rewards) {
+                    window.redeemConfig.rewards.forEach(function(r) {
+                        var optEl = document.getElementById('redeemOpt_' + r.id);
+                        if (optEl) {
+                            if ((ag.points || 0) < r.pts) {
+                                optEl.style.opacity = '0.42'; // Làm mờ vì không đủ điểm
+                                optEl.style.pointerEvents = 'none';
+                                optEl.onclick = null;
+                            } else {
+                                optEl.style.opacity = '1'; // Sáng lên cho phép bấm
+                                optEl.style.pointerEvents = 'auto';
+                                optEl.onclick = function() { window.selectRedeemReward(r.id); };
+                            }
+                        }
+                    });
+                }
+            }
+        }
+    });
+}
 
     </script>
 </body>
