@@ -942,6 +942,19 @@
     z-index: 999999 !important;  
 }
 
+/* FIX LỖI: Phân tầng hiển thị giữa các bảng Modal */
+#redeemModal {
+    z-index: 9999990 !important; /* Lớp cơ bản */
+}
+#redeemHistoryModal {
+    z-index: 9999995 !important; /* Nằm trên bảng Đổi điểm */
+}
+
+/* CẤP CAO NHẤT: Bảng thông báo xác nhận và Alert phải luôn ở trên cùng */
+#confirmModal, #alertModal {
+    z-index: 99999999 !important; 
+}
+
 /* ===== ICON TÍCH THĂNG HẠNG (VERIFIED BADGE) ===== */
 .vip-verified-badge {
     display: inline-flex;
@@ -3116,7 +3129,7 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
     </div>
 
     <!-- ===== MODAL LỊCH SỬ ĐỔI ĐIỂM (riêng biệt, overlay trên redeemModal) ===== -->
-    <div class="modal-overlay center" id="redeemHistoryModal" style="z-index:99999990 !important;">
+    <div class="modal-overlay center" id="redeemHistoryModal" style="z-index:99999999 !important;">
         <div class="center-modal glass" style="max-width:340px; padding:22px 18px;">
             <div class="sheet-header" style="margin-bottom:16px;">
                 <h2 style="color:#FF9F0A; font-size:15px; display:flex; align-items:center; gap:7px;">
@@ -3130,7 +3143,7 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
     </div>
 
     <!-- ===== MODAL ĐỔI ĐIỂM ===== -->
-    <div class="modal-overlay center" id="redeemModal" style="z-index:9999998 !important;">
+    <div class="modal-overlay center" id="redeemModal" style="z-index:99999000 !important;">
         <div class="center-modal glass" style="max-width:340px; padding:22px 18px;">
             <div class="sheet-header" style="margin-bottom:16px;">
                 <h2 style="color:#FF9F0A; font-size:15px; display:flex; align-items:center; gap:7px; flex:1; min-width:0;">
@@ -6042,7 +6055,7 @@ window.updateWheelPointsDisplay = function(store) {
             if (ptsEl) window.redeemConfig.pointsPerM2 = parseFloat(ptsEl.value) || 1;
             if (exEl)  window.redeemConfig.expiryDays  = parseInt(exEl.value) || 30;
             if (dbRef) dbRef.update({ redeemConfig: window.redeemConfig });
-            window.showToast('✅ Đã lưu cài đặt đổi điểm!');
+            window.showToast('Đã lưu cài đặt đổi điểm!');
         };
 
         // Hàm render 1 card voucher (dùng chung cho local và Firebase)
@@ -6359,37 +6372,41 @@ window.updateWheelPointsDisplay = function(store) {
         };
 
         window.deleteIssuedVoucher = function(firebaseKey, cardId) {
-            window.appConfirm('Xác Nhận Xóa', 'Bạn chắc chắn muốn xóa mã đã cấp này? Dữ liệu sẽ bị xóa hoàn toàn khỏi hệ thống.', function() {
-                // Xóa khỏi DOM ngay lập tức (không chờ Firebase)
-                var card = document.getElementById(cardId);
-                if (card) card.remove();
-                window.showToast('Đã xóa mã!');
-                // Xóa hoàn toàn trên Firebase
-                if (dbRef) {
-                    firebase.database().ref('phucminhlong_redeem_requests/' + firebaseKey).remove()
-                        .catch(function() { window.showToast('⚠️ Lỗi xóa Firebase!'); });
+    window.appConfirm('Xác Nhận Xóa', 'Bạn chắc chắn muốn xóa mã đã cấp này? Dữ liệu sẽ bị xóa hoàn toàn khỏi hệ thống.', function() {
+        var card = document.getElementById(cardId);
+        if (card) card.remove();
+        window.showToast('Đã xóa mã!');
+
+        if (dbRef) {
+            // FIX LỖI: Lấy dữ liệu mới nhất trước khi xóa để hoàn điểm đúng và không mất lịch sử
+            dbRef.child('agencies').once('value').then(function(snap) {
+                if (snap.val()) window.agencies = Array.isArray(snap.val()) ? snap.val() : Object.values(snap.val());
+                
+                firebase.database().ref('phucminhlong_redeem_requests/' + firebaseKey).remove()
+                    .catch(function() { window.showToast('⚠️ Lỗi xóa Firebase!'); });
+
+                if (window._deletingVoucherStoreCode && window._deletingVoucherCode) {
+                    var ag = window.agencies.find(function(a){ return a.code === window._deletingVoucherStoreCode; });
+                    if (ag) {
+                        if (ag.redeemHistory) {
+                            ag.redeemHistory = ag.redeemHistory.filter(function(h){ return h.voucherCode !== window._deletingVoucherCode; });
+                        }
+                        // Hoàn lại điểm
+                        if (window._deletingVoucherPts && window._deletingVoucherPts > 0) {
+                            ag.points = (ag.points || 0) + window._deletingVoucherPts;
+                            if (!ag.crmHistory) ag.crmHistory = [];
+                            ag.crmHistory.push({
+                                time: Date.now(),
+                                type: 'redeemRefund',
+                                refundBy: 'admin',
+                                amount: window._deletingVoucherPts,
+                                orderName: window._deletingVoucherLabel || 'Xóa mã ưu đãi'
+                            });
+                        }
+                        window.saveAgenciesToDB();
+                    }
                 }
-                        // Xóa khỏi redeemHistory của đại lý
-        if (window._deletingVoucherStoreCode && window._deletingVoucherCode) {
-            var ag = window.agencies.find(function(a){ return a.code === window._deletingVoucherStoreCode; });
-            if (ag) {
-                if (ag.redeemHistory) {
-                    ag.redeemHistory = ag.redeemHistory.filter(function(h){ return h.voucherCode !== window._deletingVoucherCode; });
-                }
-                // Hoàn lại điểm nếu mã bị xóa
-                if (window._deletingVoucherPts && window._deletingVoucherPts > 0) {
-                    ag.points = (ag.points || 0) + window._deletingVoucherPts;
-                    if (!ag.crmHistory) ag.crmHistory = [];
-                    ag.crmHistory.push({
-                        time: Date.now(),
-                        type: 'redeemRefund',
-                        refundBy: 'admin',
-                        amount: window._deletingVoucherPts,
-                        orderName: window._deletingVoucherLabel || 'Xóa mã ưu đãi'
-                    });
-                }
-                window.saveAgenciesToDB();
-            }
+            });
         }
     });
 };
@@ -6442,23 +6459,28 @@ window.updateWheelPointsDisplay = function(store) {
         };
 
         window.approveRedeem = function(key, storeCode, rewardPts, rewardLabel) {
-            window.appConfirm('Xác Nhận Duyệt', 'Duyệt & cấp mã voucher cho <b>' + storeCode + '</b>?', function() {
-                var voucherCode = window.genVoucherCode();
-                var now = Date.now();
-                var nowStr = new Date().toLocaleString('vi-VN');
+    window.appConfirm('Xác Nhận', 'Duyệt yêu cầu & Cấp mã giảm giá cho cửa hàng này?', function() {
+        var voucherCode = window.genVoucherCode();
+        var now = Date.now();
+        var nowStr = new Date().toLocaleString('vi-VN');
 
-                // ── BƯỚC 1: Cập nhật Firebase redeem_requests TRƯỚC (nguồn sự thật) ──
+        if (dbRef) {
+            // FIX LỖI: Tải dữ liệu mới nhất từ máy chủ trước khi duyệt để không đè mất lịch sử trừ điểm
+            dbRef.child('agencies').once('value').then(function(snap) {
+                if (snap.val()) window.agencies = Array.isArray(snap.val()) ? snap.val() : Object.values(snap.val());
+                
                 firebase.database().ref('phucminhlong_redeem_requests/' + key)
-                    .update({ status: 'approved', approvedAt: now, approvedAtStr: nowStr, voucherCode: voucherCode, issuedByAdmin: false })
+                    .update({
+                        status: 'approved',
+                        voucherCode: voucherCode,
+                        approvedAt: now,
+                        approvedAtStr: nowStr
+                    })
                     .then(function() {
-                        // ── BƯỚC 2: Cập nhật agencies[storeCode].redeemHistory trực tiếp theo key Firebase ──
-                        // Fetch lại agencies node của cửa hàng đó từ Firebase để tránh dùng local stale data
                         var ag = window.agencies.find(function(a){ return a.code === storeCode; });
                         if (ag) {
                             if (!ag.redeemHistory) ag.redeemHistory = [];
-                            // Tìm theo _firebaseKey trước (chính xác nhất), fallback tìm theo pending+label
-                            var histItem = ag.redeemHistory.find(function(h){ return h._firebaseKey === key; })
-                                        || ag.redeemHistory.find(function(h){ return h.status === 'pending' && h.rewardLabel === rewardLabel; });
+                            var histItem = ag.redeemHistory.find(function(h){ return h._firebaseKey === key; }) || ag.redeemHistory.find(function(h){ return h.status === 'pending' && h.rewardLabel === rewardLabel; });
                             if (histItem) {
                                 histItem.status = 'approved';
                                 histItem.voucherCode = voucherCode;
@@ -6467,72 +6489,86 @@ window.updateWheelPointsDisplay = function(store) {
                                 histItem.issuedByAdmin = false;
                                 histItem._firebaseKey = key;
                             } else {
-                                // Không tìm thấy trong local → thêm mới vào redeemHistory để cửa hàng thấy mã
                                 ag.redeemHistory.push({
-                                    status: 'approved', rewardLabel: rewardLabel, rewardPts: rewardPts,
-                                    voucherCode: voucherCode, approvedAt: now, approvedAtStr: nowStr,
-                                    requestedAtStr: nowStr, issuedByAdmin: false, usedInOrder: false,
+                                    status: 'approved',
+                                    rewardLabel: rewardLabel,
+                                    rewardPts: rewardPts,
+                                    voucherCode: voucherCode,
+                                    approvedAt: now,
+                                    approvedAtStr: nowStr,
+                                    requestedAtStr: nowStr,
+                                    issuedByAdmin: false,
+                                    usedInOrder: false,
                                     _firebaseKey: key
                                 });
                             }
                             window.saveAgenciesToDB();
                         }
-
-                        // ── BƯỚC 3: Ghi thông báo real-time cho cửa hàng ──
                         firebase.database().ref('phucminhlong_redeem_notify/' + storeCode)
                             .set({ voucherCode: voucherCode, rewardLabel: rewardLabel, approvedAt: now, seen: false });
-
+                        
                         window.showToast('Đã duyệt! Mã voucher: ' + voucherCode);
                         window.loadRedeemRequests();
                         if (window._redeemSubTab === 'approved') window.loadApprovedVouchers();
                     })
-                    .catch(function() { window.showToast('⚠️ Lỗi kết nối Firebase, thử lại!'); });
+                    .catch(function() {
+                        window.showToast('⚠️ Lỗi kết nối Firebase, thử lại!');
+                    });
             });
-        };
+        }
+    });
+};
 
-        window.rejectRedeem = function(key, storeCode, rewardLabel, rewardPts) {
-            window.appConfirm('Từ Chối', 'Huỷ yêu cầu đổi điểm này?<br>Điểm sẽ được <b>hoàn lại</b> cho cửa hàng.', function() {
-                var rejectedAt = Date.now();
-                // ── BƯỚC 1: Cập nhật Firebase redeem_requests ──
+window.rejectRedeem = function(key, storeCode, rewardLabel) {
+    window.appConfirm('Từ Chối', 'Huỷ yêu cầu đổi điểm này?<br>Điểm sẽ được <b>hoàn lại</b> cho cửa hàng.', function() {
+        var rejectedAt = Date.now();
+        if (dbRef) {
+            // FIX LỖI: Tải dữ liệu mới nhất từ máy chủ trước khi từ chối để hoàn điểm CHUẨN XÁC
+            dbRef.child('agencies').once('value').then(function(snap) {
+                if (snap.val()) window.agencies = Array.isArray(snap.val()) ? snap.val() : Object.values(snap.val());
+                
                 firebase.database().ref('phucminhlong_redeem_requests/' + key)
                     .update({ status: 'rejected', rejectedAt: rejectedAt })
                     .then(function() {
-                        // ── BƯỚC 2: Hoàn điểm + cập nhật local agencies ──
                         var ag = window.agencies.find(function(a){ return a.code === storeCode; });
                         if (ag) {
                             if (!ag.redeemHistory) ag.redeemHistory = [];
-                            // Tìm theo _firebaseKey trước, fallback tìm theo pending+label
-                            var histItem = ag.redeemHistory.find(function(h){ return h._firebaseKey === key; })
-                                        || ag.redeemHistory.find(function(h){ return h.status === 'pending' && h.rewardLabel === rewardLabel; });
-                            if (!ag.crmHistory) ag.crmHistory = [];
+                            var histItem = ag.redeemHistory.find(function(h){ return h._firebaseKey === key; }) || ag.redeemHistory.find(function(h){ return h.status === 'pending' && h.rewardLabel === rewardLabel; });
                             if (histItem) {
-                                // ── HOÀN ĐÚNG SỐ ĐIỂM CỦA MÃ ĐÓ ──
-                                var ptsToRefund = histItem.rewardPts || rewardPts || 0;
-                                ag.points = (ag.points || 0) + ptsToRefund;
+                                // Hoàn điểm chuẩn xác dựa trên số điểm thực tế hiện tại
+                                ag.points = (ag.points || 0) + (histItem.rewardPts || 0);
                                 histItem.status = 'rejected';
                                 histItem.rejectedAtStr = new Date().toLocaleString('vi-VN');
                                 histItem._firebaseKey = key;
-                                // ── GHI HOÀN ĐIỂM VÀO LỊCH SỬ ──
+                                
+                                if (!ag.crmHistory) ag.crmHistory = [];
                                 var redeemEntry = ag.crmHistory.find(function(c){ return c._redeemKey === key; });
-                                if (redeemEntry) { redeemEntry._redeemRejected = true; }
-                                ag.crmHistory.push({ time: Date.now(), type: 'redeemRefund', refundBy: 'admin', amount: ptsToRefund, orderName: histItem.rewardLabel || rewardLabel });
-                            } else {
-                                // ── KHÔNG TÌM THẤY TRONG LOCAL → dùng rewardPts từ Firebase truyền vào ──
-                                var ptsToRefund = rewardPts || 0;
-                                ag.points = (ag.points || 0) + ptsToRefund;
-                                ag.crmHistory.push({ time: Date.now(), type: 'redeemRefund', refundBy: 'admin', amount: ptsToRefund, orderName: rewardLabel });
+                                if (redeemEntry) {
+                                    redeemEntry._redeemRejected = true;
+                                }
+                                ag.crmHistory.push({
+                                    time: Date.now(),
+                                    type: 'redeemRefund',
+                                    refundBy: 'admin',
+                                    amount: histItem.rewardPts || 0,
+                                    orderName: histItem.rewardLabel || rewardLabel
+                                });
                             }
                             window.saveAgenciesToDB();
                         }
-                        // ── BƯỚC 3: Ghi thông báo từ chối real-time cho cửa hàng ──
                         firebase.database().ref('phucminhlong_redeem_notify/' + storeCode)
                             .set({ rejected: true, rewardLabel: rewardLabel, rejectedAt: rejectedAt, seen: false });
+                        
                         window.showToast('Đã từ chối & hoàn điểm.');
                         window.loadRedeemRequests();
                     })
-                    .catch(function() { window.showToast('⚠️ Lỗi kết nối Firebase, thử lại!'); });
+                    .catch(function() {
+                        window.showToast('⚠️ Lỗi kết nối Firebase, thử lại!');
+                    });
             });
-        };
+        }
+    });
+};
 
         window.updateRedeemBadge = function(count) {
             // Badge trong tab đổi điểm (agencyModal)
