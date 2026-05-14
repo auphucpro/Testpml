@@ -6408,40 +6408,52 @@ window.updateWheelPointsDisplay = function(store) {
         };
 
         window.deleteIssuedVoucher = function(firebaseKey, cardId) {
-    window.appConfirm('Xác Nhận Xóa', 'Bạn chắc chắn muốn xóa mã đã cấp này? Dữ liệu sẽ bị xóa hoàn toàn khỏi hệ thống.', function() {
+    window.appConfirm('Xác Nhận Xóa', 'Bạn chắc chắn muốn xóa mã này? Mã sẽ biến mất hoàn toàn bên App của Khách hàng.', function() {
+        // 1. Xóa giao diện tạm thời trên máy Admin
         var card = document.getElementById(cardId);
         if (card) card.remove();
-        window.showToast('Đã xóa mã!');
 
         if (dbRef) {
-            // FIX LỖI: Lấy dữ liệu mới nhất trước khi xóa để hoàn điểm đúng và không mất lịch sử
+            // Lấy dữ liệu mới nhất để tránh ghi đè dữ liệu cũ
             dbRef.child('agencies').once('value').then(function(snap) {
                 if (snap.val()) window.agencies = Array.isArray(snap.val()) ? snap.val() : Object.values(snap.val());
                 
+                // 2. Xóa bản ghi trong danh sách yêu cầu (Chỗ 1)
                 firebase.database().ref('phucminhlong_redeem_requests/' + firebaseKey).remove()
-                    .catch(function() { window.showToast('⚠️ Lỗi xóa Firebase!'); });
+                    .then(() => {
+                        // 3. Truy quét và xóa trong hồ sơ Đại lý (Chỗ 2 - Quan trọng để khách bị mất mã)
+                        if (window._deletingVoucherStoreCode && window._deletingVoucherCode) {
+                            var ag = window.agencies.find(function(a){ return a.code === window._deletingVoucherStoreCode; });
+                            if (ag) {
+                                // Lọc bỏ mã này khỏi lịch sử của khách
+                                if (ag.redeemHistory) {
+                                    ag.redeemHistory = ag.redeemHistory.filter(function(h){ 
+                                        return h.voucherCode !== window._deletingVoucherCode; 
+                                    });
+                                }
+                                
+                                // Hoàn lại điểm nếu mã chưa dùng (tùy chọn theo logic của bạn)
+                                if (window._deletingVoucherPts && window._deletingVoucherPts > 0) {
+                                    ag.points = (ag.points || 0) + window._deletingVoucherPts;
+                                    if (!ag.crmHistory) ag.crmHistory = [];
+                                    ag.crmHistory.push({
+                                        time: Date.now(),
+                                        type: 'redeemRefund',
+                                        refundBy: 'admin_delete',
+                                        amount: window._deletingVoucherPts,
+                                        orderName: 'Xóa mã: ' + (window._deletingVoucherLabel || window._deletingVoucherCode)
+                                    });
+                                }
 
-                if (window._deletingVoucherStoreCode && window._deletingVoucherCode) {
-                    var ag = window.agencies.find(function(a){ return a.code === window._deletingVoucherStoreCode; });
-                    if (ag) {
-                        if (ag.redeemHistory) {
-                            ag.redeemHistory = ag.redeemHistory.filter(function(h){ return h.voucherCode !== window._deletingVoucherCode; });
+                                // LƯU LẠI LÊN FIREBASE - Lúc này máy khách tải lại sẽ mất mã ngay
+                                window.saveAgenciesToDB();
+                                window.showToast('Đã xóa sạch mã ở cả Admin và Khách hàng!');
+                            }
                         }
-                        // Hoàn lại điểm
-                        if (window._deletingVoucherPts && window._deletingVoucherPts > 0) {
-                            ag.points = (ag.points || 0) + window._deletingVoucherPts;
-                            if (!ag.crmHistory) ag.crmHistory = [];
-                            ag.crmHistory.push({
-                                time: Date.now(),
-                                type: 'redeemRefund',
-                                refundBy: 'admin',
-                                amount: window._deletingVoucherPts,
-                                orderName: window._deletingVoucherLabel || 'Xóa mã ưu đãi'
-                            });
-                        }
-                        window.saveAgenciesToDB();
-                    }
-                }
+                    })
+                    .catch(function() { 
+                        window.showToast('⚠️ Lỗi xóa dữ liệu trên máy chủ!'); 
+                    });
             });
         }
     });
