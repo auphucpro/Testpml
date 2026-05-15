@@ -6902,7 +6902,7 @@ window.updateWheelPointsDisplay = function(store) {
                 approvedBy: 'admin'
             }).then(function() {
                 window.closeModal('deviceApproveModal');
-                window.showToast('✅ Đã duyệt thiết bị ' + deviceId + '!');
+                window.showToast('Đã duyệt thiết bị ' + deviceId + '!');
                 window.loadApprovedDevicesList();
             }).catch(function() {
                 window.showToast('Lỗi! Không thể ghi Firebase.');
@@ -7039,7 +7039,7 @@ window.updateWheelPointsDisplay = function(store) {
         };
 
         window.deleteIssuedVoucher = function(firebaseKey, cardId) {
-    window.appConfirm('Xác Nhận Xóa', 'Mã sẽ biến mất hoàn toàn bên App Khách hàng.', function() {
+    window.appConfirm('Xác Nhận Xóa Mã', 'Hệ thống sẽ tự động kiểm tra: Nếu mã CHƯA DÙNG sẽ hoàn lại điểm, nếu mã ĐÃ DÙNG sẽ chỉ dọn dẹp khỏi danh sách.', function() {
         var card = document.getElementById(cardId);
         if (card) card.remove(); // Ẩn thẻ UI trên máy Admin cho nhanh
 
@@ -7047,7 +7047,7 @@ window.updateWheelPointsDisplay = function(store) {
             // 1. Xóa trong danh sách Admin
             firebase.database().ref('phucminhlong_redeem_requests/' + firebaseKey).remove();
 
-            // 2. FIX LỖI: Dùng Transaction truy thẳng vào Database máy chủ để xóa bên Khách hàng (KHÔNG dùng lệnh lưu đè saveAgenciesToDB nữa)
+            // 2. Dùng Transaction truy thẳng vào Database máy chủ để xử lý
             dbRef.child('agencies').transaction(function(agenciesData) {
                 if (!agenciesData) return agenciesData;
                 var agenciesArray = Array.isArray(agenciesData) ? agenciesData : Object.values(agenciesData);
@@ -7055,23 +7055,30 @@ window.updateWheelPointsDisplay = function(store) {
                 if (window._deletingVoucherStoreCode) {
                     var ag = agenciesArray.find(function(a){ return a.code === window._deletingVoucherStoreCode; });
                     if (ag && ag.redeemHistory) {
-                        // Lọc bỏ mã bị xóa
+                        
+                        // BƯỚC QUAN TRỌNG: TÌM MÃ NÀY ĐỂ XEM ĐÃ DÙNG CHƯA TRƯỚC KHI XÓA
+                        var targetVoucher = ag.redeemHistory.find(function(h){ return h.voucherCode === window._deletingVoucherCode; });
+                        var isUsed = targetVoucher ? targetVoucher.used : false; // Nếu true là đã dùng
+
+                        // Lọc bỏ mã bị xóa khỏi danh sách của khách
                         ag.redeemHistory = ag.redeemHistory.filter(function(h){ return h.voucherCode !== window._deletingVoucherCode; });
                         
-                        // Hoàn điểm chuẩn xác (Ép kiểu số)
-                        if (window._deletingVoucherPts && window._deletingVoucherPts > 0) {
-                            var currentPts = parseInt(ag.points || 0);
-                            var refundPts = parseInt(window._deletingVoucherPts);
-                            ag.points = currentPts + refundPts;
-                            
-                            if (!ag.crmHistory) ag.crmHistory = [];
-                            ag.crmHistory.push({
-                                time: Date.now(),
-                                type: 'redeemRefund',
-                                refundBy: 'admin_delete',
-                                amount: refundPts,
-                                orderName: 'Xóa mã: ' + (window._deletingVoucherLabel || window._deletingVoucherCode)
-                            });
+                        // 🤖 LOGIC THÔNG MINH: CHỈ HOÀN ĐIỂM NẾU MÃ CHƯA SỬ DỤNG
+                        if (!isUsed) {
+                            if (window._deletingVoucherPts && window._deletingVoucherPts > 0) {
+                                var currentPts = parseInt(ag.points || 0);
+                                var refundPts = parseInt(window._deletingVoucherPts);
+                                ag.points = currentPts + refundPts;
+                                
+                                if (!ag.crmHistory) ag.crmHistory = [];
+                                ag.crmHistory.push({
+                                    time: Date.now(),
+                                    type: 'redeemRefund',
+                                    refundBy: 'admin_delete',
+                                    amount: refundPts,
+                                    orderName: 'Hoàn điểm (Xóa mã chưa dùng): ' + (window._deletingVoucherLabel || window._deletingVoucherCode)
+                                });
+                            }
                         }
                     }
                 }
@@ -7079,7 +7086,7 @@ window.updateWheelPointsDisplay = function(store) {
             }, function(error, committed, snapshot) {
                 if (committed) {
                     window.agencies = Array.isArray(snapshot.val()) ? snapshot.val() : Object.values(snapshot.val());
-                    window.showToast('🗑️ Đã xóa sạch mã ở cả Admin và Khách hàng!');
+                    window.showToast('Đã dọn mã và xử lý điểm chuẩn xác!');
                 }
             });
         }
@@ -7460,70 +7467,74 @@ window.askDeleteHistory = function(idx) {
     if(!ag || !ag.crmHistory[idx]) return;
     const item = ag.crmHistory[idx];
     
-    // Tự nhận diện là lệnh Cộng hay Trừ để hiện chữ Bảng Thông Báo cho chuẩn
-    let isAdd = true;
-    if (item.type === 'add' || item.type === 'redeemRefund') isAdd = true;
-    else if (item.type === 'sub' || item.type === 'redeem' || item.type === 'grantCode') isAdd = false;
-    else isAdd = item.amount > 0;
+    let isAdd = (item.type === 'add' || item.type === 'redeemRefund' || (item.type !== 'sub' && item.type !== 'redeem' && item.type !== 'grantCode' && item.amount > 0));
+    const actionTxt = isAdd ? "TRỪ LẠI SỐ DƯ" : "CỘNG LẠI SỐ DƯ";
     
-    const actionTxt = isAdd ? "trừ lại số dư (vì đã cộng)" : "cộng lại số dư (vì đã trừ)";
+    let warningMsg = "Bạn muốn chỉ làm sạch danh sách hay muốn hoàn lại cả số liệu cho cửa hàng?";
+    let isUsedCode = false;
+    
+    // KIỂM TRA XEM MÃ ĐÃ BỊ DÙNG CHƯA ĐỂ KHÓA NÚT
+    if (item.type === 'redeem' && item.orderName) {
+        const foundCode = (window.discountCodes || []).find(c => c.code === item.orderName);
+        if (foundCode && foundCode.used) {
+            isUsedCode = true;
+            warningMsg = `<b style="color:#FF453A; font-size:15px;">LỖI BẢO MẬT:</b><br>Mã ưu đãi <b>${item.orderName}</b> này ĐÃ ĐƯỢC DÙNG cho đơn hàng! Hệ thống sẽ <b>KHOÁ</b> chức năng hoàn điểm để chống thất thoát. Bạn chỉ có thể ép xóa dòng này khỏi danh sách.`;
+        }
+    }
 
-    // Tạo bảng Popup Đồng bộ Kính Mờ iOS 26
     const overlay = document.createElement('div');
-    overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.75); z-index:99999999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(5px); opacity:0; transition:opacity 0.2s;";
+    overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:99999999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px); opacity:0; transition:opacity 0.2s;";
     overlay.id = "deleteConfirmPopup";
     
+    // NẾU MÃ ĐÃ DÙNG -> CHỈ HIỆN 1 NÚT ÉP XÓA
+    let buttonsHtml = '';
+    if (isUsedCode) {
+        buttonsHtml = `<button onclick="window.confirmDeleteLogic(${idx}, false)" style="width:100%; padding:15px; background:rgba(255,69,58,0.15); border:1px solid #FF453A; border-radius:14px; color:#FF453A; font-weight:900; margin-bottom:20px; font-size:14px; box-shadow:0 4px 15px rgba(255,69,58,0.2);">ÉP XOÁ (KHÔNG HOÀN ĐIỂM)</button>`;
+    } else {
+        buttonsHtml = `
+            <button onclick="window.confirmDeleteLogic(${idx}, true)" style="width:100%; padding:15px; background:#30D158; border:none; border-radius:14px; color:black; font-weight:900; margin-bottom:10px; font-size:14px; box-shadow:0 4px 15px rgba(48,209,88,0.3);">XOÁ & ${actionTxt}</button>
+            <button onclick="window.confirmDeleteLogic(${idx}, false)" style="width:100%; padding:15px; background:rgba(255,255,255,0.08); border:0.5px solid rgba(255,255,255,0.1); border-radius:14px; color:white; font-weight:700; margin-bottom:20px; font-size:14px;">CHỈ XOÁ DÒNG NÀY</button>
+        `;
+    }
+
     overlay.innerHTML = `
-        <div style="background:linear-gradient(135deg, rgba(10, 132, 255, 0.15), rgba(191, 90, 242, 0.15)); backdrop-filter:blur(35px) saturate(200%); -webkit-backdrop-filter:blur(35px) saturate(200%); border:0.5px solid rgba(255, 255, 255, 0.2); border-radius:24px; padding:24px; width:90%; max-width:320px; text-align:center; box-shadow:0 20px 40px rgba(0, 0, 0, 0.4); transform:scale(0.9); transition:transform 0.2s cubic-bezier(0.25,0.46,0.45,0.94);">
-            <div style="width:48px;height:48px;border-radius:50%;background:rgba(239,68,68,0.15);border:0.5px solid rgba(239,68,68,0.4);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;color:#ef4444;">
-                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/></svg>
+        <div style="background:#1c1c1e; border:1px solid rgba(255,255,255,0.15); border-radius:28px; padding:24px; width:90%; max-width:340px; text-align:center; box-shadow:0 25px 50px rgba(0,0,0,0.5); transform:scale(0.9); transition:transform 0.2s;">
+            <div style="width:56px; height:56px; border-radius:50%; background:${isUsedCode ? 'rgba(255,69,58,0.2)' : 'rgba(10,132,255,0.2)'}; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+                <svg width="28" height="28" fill="none" stroke="${isUsedCode ? '#FF453A' : '#0A84FF'}" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
             </div>
-            <div style="font-size:17px; font-weight:900; color:white; margin-bottom:8px;">Gỡ Dòng Lịch Sử</div>
-            <div style="font-size:13px; color:rgba(255,255,255,0.6); margin-bottom:20px; line-height:1.4;">Bạn muốn chỉ làm sạch danh sách hay muốn hoàn lại cả số liệu cho cửa hàng?</div>
+            <div style="font-size:19px; font-weight:900; color:white; margin-bottom:10px;">Xác Nhận Gỡ Bỏ</div>
+            <div style="font-size:13.5px; color:rgba(255,255,255,0.7); margin-bottom:24px; line-height:1.5;">${warningMsg}</div>
             
-            <button onclick="window.confirmDeleteLogic(${idx}, true)" class="btn-submit" style="background:linear-gradient(135deg, #FF453A, #FF9F0A) !important; margin-bottom:10px; width:100%; border:none !important;">Xoá và ${actionTxt}</button>
+            ${buttonsHtml}
             
-            <button onclick="window.confirmDeleteLogic(${idx}, false)" class="btn-outline" style="margin-bottom:15px; width:100%;">Chỉ xoá khỏi DS</button>
-            
-            <div onclick="document.getElementById('deleteConfirmPopup').remove()" style="color:rgba(255,255,255,0.4); font-size:12px; font-weight:700; cursor:pointer;">Đóng / Hủy Bỏ</div>
+            <div onclick="document.getElementById('deleteConfirmPopup').remove()" style="color:rgba(255,255,255,0.4); font-size:12px; font-weight:700; cursor:pointer; text-transform:uppercase; letter-spacing:1px;">Hủy bỏ</div>
         </div>
     `;
     document.body.appendChild(overlay);
-    setTimeout(() => {
-        overlay.style.opacity = '1';
-        overlay.children[0].style.transform = 'scale(1)';
-    }, 10);
+    setTimeout(() => { overlay.style.opacity = '1'; overlay.children[0].style.transform = 'scale(1)'; }, 10);
 };
 
 window.confirmDeleteLogic = function(idx, isRefund) {
     const ag = window.agencies.find(a => a.id == window.currentM2AgencyId);
     const item = ag.crmHistory[idx];
     if(!item) return;
-    
-    if(isRefund) {
-        let isAdd = true;
-        let isPointOnly = false; // Phân biệt rành mạch loại m2 và loại Điểm
 
-        // Bộ nhận diện mới (Chuẩn tuyệt đối)
-        if (item.type === 'add') {
-            isAdd = true;
-        } else if (item.type === 'sub') {
-            isAdd = false;
-        } else if (item.type === 'redeemRefund') {
-            isAdd = true; isPointOnly = true; // Hoàn điểm thì chỉ là Điểm
-        } else if (item.type === 'redeem' || item.type === 'grantCode') {
-            isAdd = false; isPointOnly = true; // Đổi/Cấp mã thì chỉ Trừ Điểm
-        } else if (item.type === 'spin') {
-            isAdd = item.amount > 0; isPointOnly = true; // Vòng quay chỉ là Điểm
-        } else {
-            isAdd = item.amount > 0;
-        }
+    // CHẶN TOÁN HỌC DƯỚI TẦNG SÂU (Tuyệt đối không cho phép thủ thuật bypass)
+    let isUsedCode = false;
+    if (item.type === 'redeem' && item.orderName) {
+        const foundCode = (window.discountCodes || []).find(c => c.code === item.orderName);
+        if (foundCode && foundCode.used) isUsedCode = true;
+    }
+
+    // Nếu người dùng chọn Hoàn lại VÀ Mã đó chưa bị dùng thì mới chạy lệnh toán học
+    if(isRefund && !isUsedCode) {
+        let isActuallyAdding = (item.type === 'add' || item.type === 'redeemRefund' || (item.type !== 'sub' && item.type !== 'redeem' && item.type !== 'grantCode' && item.amount > 0));
+        let isPointOnly = (item.type === 'redeem' || item.type === 'grantCode' || item.type === 'redeemRefund' || item.type === 'spin');
 
         const amt = Math.abs(item.amount || 0);
         const pts = Math.abs(item.points !== undefined ? item.points : amt);
         
-        if (isAdd) {
-            // NẾU GỐC LÀ CỘNG (+) -> XÓA PHẢI TRỪ RA
+        if (isActuallyAdding) {
             if (isPointOnly) {
                 ag.points = Math.max(0, (ag.points || 0) - pts);
             } else {
@@ -7531,7 +7542,6 @@ window.confirmDeleteLogic = function(idx, isRefund) {
                 ag.points = Math.max(0, (ag.points || 0) - pts);
             }
         } else {
-            // NẾU GỐC LÀ TRỪ (-) -> XÓA PHẢI CỘNG LẠI
             if (isPointOnly) {
                 ag.points = (ag.points || 0) + pts;
             } else {
@@ -7541,22 +7551,21 @@ window.confirmDeleteLogic = function(idx, isRefund) {
         }
     }
     
-    // Tiến hành xóa dòng lịch sử
+    // Tiến hành xóa
     ag.crmHistory.splice(idx, 1);
-    
     window.saveAgenciesToDB();
-    const popup = document.getElementById('deleteConfirmPopup');
-    if (popup) popup.remove();
-    
+    if(document.getElementById('deleteConfirmPopup')) document.getElementById('deleteConfirmPopup').remove();
     window.renderM2History();
     
-    // Cập nhật dòng chữ Đã Lấy ... Điểm ... bên trên cùng của Bảng m2
+    // Cập nhật dòng chữ điểm trên cùng
     const msgUI = document.getElementById('m2MsgUI');
-    if(msgUI) {
-        msgUI.innerHTML = `Đại lý: <b style='color:var(--highlight);'>${ag.name}</b><br>Đã lấy: <b>${(ag.bought||0).toLocaleString('vi-VN')}m²</b> | Điểm: <b>${(ag.points||0).toLocaleString('vi-VN')}</b>`;
-    }
+    if(msgUI) msgUI.innerHTML = `Đại lý: <b style='color:var(--highlight);'>${ag.name}</b><br>Đã lấy: <b>${(ag.bought||0).toLocaleString('vi-VN')}m²</b> | Điểm: <b>${(ag.points||0).toLocaleString('vi-VN')}</b>`;
     
-    window.showToast(isRefund ? "Đã xóa và hoàn lại chuẩn xác!" : "Đã dọn sạch dòng lịch sử!");
+    if (isUsedCode) {
+        window.showToast("Đã ép xóa lịch sử thành công. KHÔNG HOÀN ĐIỂM vì mã đã bị dùng!");
+    } else {
+        window.showToast(isRefund ? "Đã xoá và cập nhật lại số dư chuẩn!" : "Đã dọn dẹp lịch sử!");
+    }
 };
 
 window.openManageM2Modal = function(id) {
