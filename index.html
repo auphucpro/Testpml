@@ -115,78 +115,92 @@
             padding: 0 44px; margin: 0 auto; user-select: none;
             text-shadow: 0 0 20px rgba(10,132,255,0.5), 0 0 40px rgba(191,90,242,0.3);
         }
-        .header-sub { font-size: 9.5px; font-weight: 600; color: var(--text-muted); margin-top: 1px; pointer-events: none; letter-spacing: 0.3px; }
+        .header-sub { font-size: 9.5px; font-weight: 600; color: var(--text-muted); margin-top: -4px; pointer-events: none; letter-spacing: 0.3px; }
 
-/* ===== NÚT THU GỌN THANH TIÊU ĐỀ ===== */
-.header-collapse-btn {
+/* ===== TIÊU ĐỀ VÀ MŨI TÊN THU GỌN ===== */
+.header-title-wrapper {
+    display: block;
+    position: relative;
+    cursor: pointer; 
+    padding: 0px 36px;
+    border-radius: 20px;
+    transition: background 0.2s, transform 0.2s;
+    margin: 0 auto;
+    text-align: center;
+}
+.header-title-wrapper:active { transform: scale(0.96); }
+
+/* ===== MŨI TÊN TINH TẾ - HOÀ HUYỆN VỚI GIAO DIỆN ===== */
+.header-chevron-wrap {
     position: absolute;
-    left: 14px;
+    right: 0;
     top: 50%;
     transform: translateY(-50%);
-    width: 28px; height: 28px;
-    border-radius: 8px;
-    background: transparent;
-    border: none;
+    width: 22px; height: 22px;
     display: flex; align-items: center; justify-content: center;
-    cursor: pointer; z-index: 10;
-    transition: background 0.2s ease;
-    flex-shrink: 0;
-}
-.header-collapse-btn:active {
-    transform: translateY(-50%) scale(0.88) !important;
-    background: rgba(255,255,255,0.08);
-}
-.header-collapse-btn svg {
-    width: 18px; height: 18px;
-    stroke: rgba(255,255,255,0.7);
-    /* mũi tên chỉ lên khi đang mở (mặc định = đang mở) */
-    transition: transform 0.42s cubic-bezier(0.34,1.1,0.64,1);
-    stroke-width: 2 !important;
-}
-/* Khi đã thu gọn: icon chỉ xuống (lướt xuống mượt) */
-.sticky-top.header-collapsed .header-collapse-btn svg {
-    transform: rotate(180deg);
-}
-@keyframes collapseShake {
-    0%,100% { transform: translateY(-50%) rotate(0deg); }
-    20%      { transform: translateY(-50%) rotate(-10deg) scale(1.15); }
-    40%      { transform: translateY(-50%) rotate(8deg) scale(1.15); }
-    60%      { transform: translateY(-50%) rotate(-6deg); }
-    80%      { transform: translateY(-50%) rotate(5deg); }
-}
-/* Rung khi bảng đang mở (expanding) */
-@keyframes openShake {
-    0%   { transform: translateY(-50%) rotate(0deg); }
-    20%  { transform: translateY(-50%) rotate(10deg) scale(1.15); }
-    40%  { transform: translateY(-50%) rotate(-8deg) scale(1.15); }
-    60%  { transform: translateY(-50%) rotate(6deg); }
-    80%  { transform: translateY(-50%) rotate(-5deg); }
-    100% { transform: translateY(-50%) rotate(0deg); }
-}
-.header-collapse-btn.shaking {
-    animation: collapseShake 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-}
-.header-collapse-btn.opening {
-    animation: openShake 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(10,132,255,0.18), rgba(191,90,242,0.18));
+    border: 0.5px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1);
+    transition: background 0.3s ease;
 }
 
-/* Wrapper bao các phần ẩn/hiện */
+.header-chevron {
+    width: 10px; height: 10px;
+    stroke: url(#chevronGrad);
+    stroke-width: 2.2;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    display: block;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* TRẠNG THÁI ĐANG MỞ: Mũi tên hướng lên và nhấp nhô chỉ lên trên */
+.sticky-top:not(.header-collapsed) .header-chevron-wrap {
+    animation: floatUpAnim 1.4s ease-in-out infinite;
+}
+
+/* TRẠNG THÁI ĐÃ ĐÓNG: Mũi tên quay xuống và nhấp nhô chỉ xuống dưới */
+.sticky-top.header-collapsed .header-chevron-wrap { 
+    animation: floatDownCollapsedAnim 1.4s ease-in-out infinite;
+    background: linear-gradient(135deg, rgba(191,90,242,0.18), rgba(10,132,255,0.18));
+}
+
+.sticky-top.header-collapsed .header-chevron {
+    transform: rotate(-180deg);
+}
+
+/* Định nghĩa nhịp thở (lướt) */
+@keyframes floatUpAnim {
+    0%, 100% { transform: translateY(-50%) translateY(0px); }
+    50%      { transform: translateY(-50%) translateY(3px); }
+}
+@keyframes floatDownCollapsedAnim {
+    0%, 100% { transform: translateY(-50%) translateY(0px); }
+    50%      { transform: translateY(-50%) translateY(3px); }
+}
+
+/* ===== HIỆU ỨNG THU MỞ SIÊU MƯỢT (KHÔNG BỊ KHỰNG) ===== */
 #headerCollapsibleArea {
     overflow: hidden;
-    transition:
-        max-height 0.46s cubic-bezier(0.32, 0.72, 0, 1),
-        opacity    0.3s ease,
-        transform  0.42s cubic-bezier(0.32, 0.72, 0, 1);
-    max-height: 500px;
+    max-height: 250px; /* Thu nhỏ mức tối đa lại cho sát với thực tế để chống khựng */
     opacity: 1;
     transform: translateY(0);
     transform-origin: top;
+    /* KHI MỞ RA: Chiều cao mở ra nhanh, nội dung từ từ rõ lên */
+    transition: max-height 0.4s ease-out, opacity 0.3s ease 0.1s, transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
+
 .sticky-top.header-collapsed #headerCollapsibleArea {
     max-height: 0 !important;
     opacity: 0 !important;
-    transform: translateY(-12px) !important;
+    transform: translateY(-15px) !important;
     pointer-events: none;
+    /* KHI ĐÓNG LẠI: Làm mờ và vuốt lên NGAY LẬP TỨC (0.2s), chiều cao thu lại sau (0.3s) -> TẠO CẢM GIÁC MƯỢT TUYỆT ĐỐI */
+    transition: opacity 0.2s ease, transform 0.2s ease, max-height 0.3s ease 0.1s !important;
 }
 /* Khi đang mở ra: lướt xuống từ trên */
 .sticky-top:not(.header-collapsed) #headerCollapsibleArea {
@@ -446,12 +460,37 @@
 .cat-drawer-item.active-featured .cat-drawer-label { color: #FF9F0A; }
 .cat-drawer-sep { height: 0.5px; background: linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent); margin: 0 0 2px; }
 
-        /* Settings Tab Nav */
-        .settings-tab-nav { display: flex; gap: 6px; margin-bottom: 16px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+        /* Marquee contenteditable placeholder */
+        #setMarqueeText:empty:before {
+            content: attr(data-placeholder);
+            color: rgba(255,255,255,0.3);
+            font-size: 13px;
+            pointer-events: none;
+        }
+        #setMarqueeText img {
+            height: 28px !important;
+            width: auto !important;
+            vertical-align: middle;
+            display: inline;
+            object-fit: contain;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+        .marquee-text img {
+            height: 22px !important;
+            width: auto !important;
+            vertical-align: middle;
+            display: inline;
+            object-fit: contain;
+            filter: drop-shadow(0 0 4px rgba(255,255,255,0.3));
+        }
+        .settings-tab-nav { display: flex; gap: 6px; margin-bottom: 16px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; flex-shrink: 0; }
         .settings-tab-nav::-webkit-scrollbar { display: none; }
         .settings-tab-btn { padding: 7px 14px; border-radius: 20px; border: 0.5px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.6); font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: all 0.22s; }
         .settings-tab-btn.active { background: rgba(255,255,255,0.95); color: #000; border-color: rgba(255,255,255,0.9); }
-        .settings-tab-panel { display: none; }
+        /* Container bọc tất cả các tab panel — chiều cao cố định, scroll bên trong */
+        .settings-tab-panels-wrapper { flex: 1; overflow: hidden; position: relative; min-height: 0; }
+        .settings-tab-panel { display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 16px; }
         .settings-tab-panel.active { display: block; }
 
         /* Cat Manager */
@@ -1358,13 +1397,40 @@ svg[stroke="currentColor"], .svg-icon, .icon-btn svg, .btn-action-icon svg {
     from { opacity: 0; transform: translateY(-15px) scale(0.98); }
     to   { opacity: 1; transform: translateY(0) scale(1); }
 }
+/* ===== HIỆU ỨNG XUẤT HIỆN LƯỚT SÓNG CHO SẢN PHẨM ===== */
 @keyframes cardSlideIn {
-    from { opacity: 0; transform: translate3d(0, 18px, 0) scale(0.97); }
+    from { opacity: 0; transform: translate3d(0, 40px, 0) scale(0.92); }
     to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
 }
+
 .product-card {
-    animation: cardSlideIn 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+    /* Chỉnh lại gia tốc trượt để có cảm giác lướt đầm và mượt như iOS */
+    animation: cardSlideIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
+
+/* TẠO ĐỘ TRỄ XẾP TẦNG (STAGGERED) - Chìa khóa của sự mượt mà */
+.product-card:nth-child(1) { animation-delay: 0.03s; }
+.product-card:nth-child(2) { animation-delay: 0.06s; }
+.product-card:nth-child(3) { animation-delay: 0.09s; }
+.product-card:nth-child(4) { animation-delay: 0.12s; }
+.product-card:nth-child(5) { animation-delay: 0.15s; }
+.product-card:nth-child(6) { animation-delay: 0.18s; }
+.product-card:nth-child(7) { animation-delay: 0.21s; }
+.product-card:nth-child(8) { animation-delay: 0.24s; }
+.product-card:nth-child(9) { animation-delay: 0.27s; }
+.product-card:nth-child(10) { animation-delay: 0.30s; }
+.product-card:nth-child(11) { animation-delay: 0.33s; }
+.product-card:nth-child(12) { animation-delay: 0.36s; }
+.product-card:nth-child(13) { animation-delay: 0.39s; }
+.product-card:nth-child(14) { animation-delay: 0.42s; }
+.product-card:nth-child(15) { animation-delay: 0.45s; }
+.product-card:nth-child(16) { animation-delay: 0.48s; }
+.product-card:nth-child(17) { animation-delay: 0.51s; }
+.product-card:nth-child(18) { animation-delay: 0.54s; }
+.product-card:nth-child(19) { animation-delay: 0.57s; }
+.product-card:nth-child(20) { animation-delay: 0.60s; }
+/* Từ thẻ 21 trở đi nếu load thêm sẽ có chung 1 độ trễ để không phải đợi tải quá lâu */
+.product-card:nth-child(n+21) { animation-delay: 0.60s; }
 .cat-chip {
     transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
 }
@@ -1444,11 +1510,13 @@ svg[stroke="currentColor"], .svg-icon, .icon-btn svg, .btn-action-icon svg {
 #saleModal {
     z-index: 800000 !important;
 }
-   /* Khóa cuộn trang nền khi mở bảng */
+  /* ===== KHÓA NỀN KHI MỞ BẢNG (CHỐNG GIẬT NHẢY TRANG) ===== */
 body.modal-open {
-    overflow: hidden;
-    position: fixed;
-    width: 100%;
+    overflow: hidden !important;
+    /* Dùng touch-action để khóa cuộn trên điện thoại mà không làm nhảy trang */
+    touch-action: none !important; 
+    overscroll-behavior: none !important;
+    /* TUYỆT ĐỐI KHÔNG DÙNG position: fixed HAY height: 100% Ở ĐÂY */
 }
   /* Hiệu ứng sản phẩm Ghim */
 .product-card.pinned {
@@ -2144,6 +2212,7 @@ button:active, .product-card:active, .btn-submit:active, .btn-outline:active, .c
     will-change: transform;
     /* Tắt animation cũ */
     animation: none !important;
+    overflow: hidden;
 }
 /* Handle bar iOS */
 .bottom-sheet::before {
@@ -2193,8 +2262,7 @@ button:active, .cat-chip:active, .sub-chip:active {
     opacity: 0.8 !important;
 }
 @media (max-width: 480px) {
-    .product-card { animation-duration: 0.2s !important; }
-    .rank-circle { animation: none !important; box-shadow: 0 2px 8px rgba(0,0,0,0.5) !important; }
+        .rank-circle { animation: none !important; box-shadow: 0 2px 8px rgba(0,0,0,0.5) !important; }
 }
 .icon-btn {
     background: rgba(255,255,255,0.1) !important;
@@ -2570,6 +2638,258 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
     border-radius: 32px !important;
     filter: drop-shadow(0 0 0.7px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 0.7px rgba(255, 255, 255, 0.5)) !important;
     background: transparent !important;
+}
+
+/* ===== ÉP XUNG GPU: CHỐNG LAG KHI ĐÓNG/MỞ MỌI BẢNG (MODAL) ===== */
+/* Làm mượt phần nền đen */
+.modal-overlay {
+    transition: opacity 0.3s ease, visibility 0.3s ease !important;
+    will-change: opacity;
+}
+
+/* Làm mượt hộp nội dung: Lướt nhẹ từ dưới lên + Phóng to êm ái */
+.modal-overlay > div {
+    transform: translate3d(0, 30px, 0) scale(0.96) !important;
+    opacity: 0 !important;
+    transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s ease !important;
+    will-change: transform, opacity; /* Chìa khóa bắt GPU xử lý chống khựng */
+}
+
+/* Trạng thái khi bảng bật lên */
+.modal-overlay.show > div {
+    transform: translate3d(0, 0, 0) scale(1) !important;
+    opacity: 1 !important;
+}
+
+/* ===== CHỐNG KHỰNG VÀ LÀM MƯỢT BẢNG DANH MỤC SẢN PHẨM ===== */
+
+/* 1. BẢNG DANH MỤC CHÍNH (Tất cả, Gạch ốp tường...) */
+.cat-drawer-panel {
+    max-height: 0 !important;
+    opacity: 0 !important; 
+    transform: translateY(-10px) scale(0.98);
+    pointer-events: none;
+    /* BÍ QUYẾT CHỐNG KHỰNG: Khi bấm đóng, bảng sẽ Mờ đi và Vuốt lên NGAY LẬP TỨC (0.15s), 
+       sau đó chiều cao mới thu gọn lại để bạn không phải chờ đợi nhịp nào */
+    transition: opacity 0.15s ease, transform 0.15s ease, max-height 0.35s ease 0.1s !important;
+    will-change: transform, opacity, max-height;
+}
+
+.cat-drawer-panel.open { 
+    max-height: 350px !important; 
+    opacity: 1 !important; 
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+    /* Khi bấm mở: Trượt xuống êm ái và bung ra mượt mà */
+    transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s ease, transform 0.4s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+/* 2. THANH DANH MỤC CON (Vuốt ngang) */
+.sub-cat-container { 
+    display: flex !important; /* Bắt buộc chuyển sang flex để có thể chạy hiệu ứng trượt */
+    max-height: 0 !important;
+    opacity: 0 !important;
+    margin-top: 0 !important;
+    overflow-y: hidden !important; /* Khóa chiều dọc chống lẹm khung */
+    transform: translateY(-5px);
+    pointer-events: none;
+    /* Đóng danh mục con êm ái, mờ dần rồi mới thu lại, không bị giật cục làm hoa mắt */
+    transition: max-height 0.25s ease 0.05s, opacity 0.15s ease, margin-top 0.25s ease 0.05s, transform 0.15s ease !important;
+    will-change: max-height, opacity, margin-top, transform;
+}
+
+.sub-cat-container.show { 
+    max-height: 45px !important; 
+    opacity: 1 !important; 
+    margin-top: 6px !important;
+    transform: translateY(0);
+    pointer-events: auto;
+    /* Khi mở danh mục con: Lướt nhẹ từ trên xuống */
+    transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s ease, margin-top 0.4s cubic-bezier(0.25, 1, 0.5, 1), transform 0.4s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+/* ===== 1. THANH TIÊU ĐỀ TRONG SUỐT 70% (DỄ NHÌN & SANG TRỌNG) ===== */
+.sticky-top {
+    /* Trả về độ mờ 70% để nền xanh tím đậm đà hơn, không bị rối mắt */
+    background: linear-gradient(135deg, rgba(9, 14, 23, 0.7), rgba(28, 12, 48, 0.75)) !important;
+    backdrop-filter: blur(25px) saturate(190%) !important;
+    -webkit-backdrop-filter: blur(25px) saturate(190%) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Đảm bảo các lớp bên trong phải tàng hình để nền kính mờ phát huy tác dụng */
+.sticky-top header, 
+.sticky-top #headerCollapsibleArea, 
+.sticky-top .collapse-inner {
+    background: transparent !important;
+}
+
+/* Tắt các hiệu ứng dư thừa cũ để nhường chỗ cho hiệu ứng đồng bộ mới */
+.collapse-inner {
+    transform: none !important;
+    opacity: 1 !important;
+}
+
+
+/* ===== 2. ĐỒNG BỘ HIỆU ỨNG THU/MỞ SIÊU MƯỢT (TIÊU ĐỀ & DANH MỤC) ===== */
+/* Công thức chung: Lướt cực đầm, không giật cục, không chờ đợi (Chuẩn 0.4s của iOS) */
+
+#headerCollapsibleArea,
+.cat-drawer-panel {
+    display: block !important; 
+    overflow: hidden !important;
+    transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.35s ease, transform 0.4s cubic-bezier(0.25, 1, 0.5, 1) !important;
+    will-change: max-height, opacity, transform;
+}
+
+/* --- A. THANH TIÊU ĐỀ (CHỮ CẦN THƠ) --- */
+/* Đang mở */
+#headerCollapsibleArea {
+    max-height: 250px !important;
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+/* Đã thu gọn */
+.sticky-top.header-collapsed #headerCollapsibleArea {
+    max-height: 0 !important;
+    opacity: 0 !important;
+    transform: translateY(-10px) !important;
+    pointer-events: none !important;
+}
+
+/* --- B. BẢNG DANH MỤC MẸ --- */
+/* Đã thu gọn (Mặc định) */
+.cat-drawer-panel {
+    max-height: 0 !important;
+    opacity: 0 !important;
+    transform: translateY(-10px) !important;
+    pointer-events: none !important;
+}
+/* Đang mở */
+.cat-drawer-panel.open { 
+    max-height: 350px !important; 
+    opacity: 1 !important; 
+    transform: translateY(0) !important;
+    pointer-events: auto !important;
+}
+
+/* --- C. THANH DANH MỤC CON (Vuốt ngang) --- */
+.sub-cat-container { 
+    display: flex !important;
+    max-height: 0 !important;
+    opacity: 0 !important;
+    margin-top: 0 !important;
+    transform: translateY(-5px) !important;
+    pointer-events: none !important;
+    transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1) !important; 
+}
+.sub-cat-container.show { 
+    max-height: 45px !important; 
+    opacity: 1 !important; 
+    margin-top: 6px !important;
+    transform: translateY(0) !important;
+    pointer-events: auto !important;
+}
+
+/* ===== CHÂN ÁI CUỐI CÙNG: ÔM SÁT CHIỀU CAO + BO GÓC CHUẨN + GIỮ 100% HIỆU ỨNG ===== */
+.banner-panel {
+    width: auto !important; /* Chống lấn sang phải */
+    margin-left: 16px !important;
+    margin-right: 16px !important;
+    height: auto !important; /* Tự động theo chiều cao ảnh */
+    aspect-ratio: auto !important; /* Phá vỡ bộ khung 270px cũ */
+    padding-bottom: 0 !important;
+    /* Tuyệt đối không dùng thêm lệnh cắt gọt nào để giữ nguyên kính mờ và bóng đổ */
+}
+
+.banner-panel img#bannerImgUI {
+    height: auto !important; 
+    aspect-ratio: auto !important;
+    max-height: none !important;
+    display: block !important;
+    object-fit: cover !important;
+    /* BÍ QUYẾT: Bo ảnh 21px (nhỏ hơn khung 1px) để 4 góc bo lọt thỏm vào trong, tự động tròn trịa đều tăm tắp! */
+    border-radius: 21px !important; 
+}
+
+/* ===== COMBO HIỆU ỨNG: BẢNG TRƯỢT LÊN + THÔNG BÁO NẨY NHẸ (CHUẨN APPLE) ===== */
+
+/* 1. Xử lý phần nền đen (Overlay): Mờ đi và hiện ra êm ái */
+.modal-overlay, 
+.alert-overlay,
+.popup-overlay {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: opacity 0.3s ease, visibility 0.3s ease !important;
+    will-change: opacity, visibility;
+}
+
+.modal-overlay.show, 
+.alert-overlay.show,
+.popup-overlay.show {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* 2. Xử lý Hộp nội dung bên trong (Bảng & Thông báo) */
+.modal-overlay > div, 
+.alert-overlay > div,
+.popup-overlay > div {
+    /* Trạng thái tắt: Nằm tuốt ở dưới (40px) và bị thu nhỏ lại (0.85) */
+    transform: translateY(40px) scale(0.85) !important;
+    opacity: 0 !important;
+    /* Dùng thuật toán cubic-bezier để tạo độ "Nẩy" (Spring) cao cấp như iPhone */
+    transition: transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.15), opacity 0.3s ease !important;
+    will-change: transform, opacity;
+}
+
+/* 3. Khi bảng bật lên */
+.modal-overlay.show > div, 
+.alert-overlay.show > div,
+.popup-overlay.show > div {
+    /* Trạng thái mở: Bay về đúng vị trí (0) và phóng to về bình thường (1) */
+    transform: translateY(0) scale(1) !important;
+    opacity: 1 !important;
+}
+
+/* ===== HIỆU ỨNG VỆT SÁNG LƯỚT QUA NÚT MŨI TÊN TIÊU ĐỀ ===== */
+.header-chevron-wrap {
+    position: absolute !important; /* Giữ nguyên vị trí bên phải của nút */
+    overflow: hidden !important;   /* Khóa vệt sáng lại không cho tràn ra ngoài viền tròn */
+}
+
+/* Tạo lớp màng ánh sáng trắng nghiêng 25 độ */
+.header-chevron-wrap::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 60%;
+    height: 100%;
+    /* Dải màu sáng như ánh kim loại quét qua */
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+    transform: skewX(-25deg);
+    animation: muiTenQuetSang 3.5s ease-in-out infinite; /* Cứ 3.5 giây xẹt qua 1 lần */
+    pointer-events: none; /* Không cản trở người dùng bấm nút */
+}
+
+/* Kịch bản chạy của vệt sáng: Xẹt qua nhanh - Nghỉ lâu */
+@keyframes muiTenQuetSang {
+    0% { left: -150%; }
+    15% { left: 150%; }  /* Quét qua nút cực nhanh trong nháy mắt */
+    100% { left: 150%; } /* Đứng đợi nghỉ ngơi rồi mới lặp lại vòng mới */
+}
+
+/* ===== KHIÊN TITAN: CHỐNG BÓP XẸP LOGO TRÊN MÀN HÌNH NGẮN ===== */
+.khung-logo-dep {
+    flex-shrink: 0 !important; /* Cấm bóp xẹp cái khung bên ngoài */
+}
+
+.logo-sieu-sang {
+    flex-shrink: 0 !important; /* Cấm bóp xẹp tấm ảnh bên trong */
+    min-height: 130px !important; /* Lệnh thép: Dù màn hình lùn cỡ nào cũng phải giữ đúng 130px chiều cao */
+    min-width: 130px !important;
 }
 
 </style>
@@ -3029,15 +3349,24 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
         </div>
     </div>
 
-        <div class="sticky-top" id="stickyTopBar">
-            <header>
-                <button class="header-collapse-btn" id="headerCollapseBtn" onclick="window.toggleHeaderCollapse()" aria-label="Thu gọn thanh tiêu đề">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M5 15l7-7 7 7"/>
-                    </svg>
-                </button>
-                <h1 class="header-title" onclick="window.handleSecretTrigger()">PHỤC MINH LONG CẦN THƠ</h1>
-                <div class="header-sub">Đặt Hàng <strong style="color:white;">0965399774</strong> | PHUC.PRO.VN</div>
+            <div style="position: sticky; top: 0; z-index: 20;">
+        <div class="sticky-top" id="stickyTopBar" style="position: relative; z-index: 10;">
+                        <header style="padding-top: 4px;">
+                <div id="headerCollapseBtn" class="header-title-wrapper" onclick="window.toggleHeaderCollapse()" style="position: relative; display: block; text-align: center; cursor: pointer;">
+                    <h1 class="header-title" style="padding: 0; margin: 0; display: block; text-align: center;">PHỤC MINH LONG CẦN THƠ</h1>
+                    <div class="header-chevron-wrap">
+                        <svg class="header-chevron" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="chevronGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#1A91FF"/>
+                                    <stop offset="100%" stop-color="#BF5AF2"/>
+                                </linearGradient>
+                            </defs>
+                            <polyline points="2,8 6,4 10,8" stroke="url(#chevronGrad)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="header-sub" onclick="window.handleSecretTrigger()" style="cursor: pointer; padding: 4px 0; text-align: center;">Đặt Hàng <strong style="color:white;">0965399774</strong> | PHUC.PRO.VN</div>
             </header>
             
             <div id="retailBar" class="retail-settings-bar">
@@ -3115,14 +3444,10 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
 
             </div><!-- /headerCollapsibleArea -->
 
-            <!-- LUÔN HIỂN THỊ: Chữ chạy -->
             <div class="marquee-container" id="marqueeContainerUI">
                 <div class="marquee-text" id="marqueeTextUI">✨ CHÀO MỪNG QUÝ KHÁCH ĐÃ ĐẾN VỚI APP GẠCH MEN PHỤC MINH LONG ✨</div>
             </div>
-        </div>
-
-        <!-- BANNER PANEL — hiển thị độc lập dưới bảng tiêu đề -->
-        <div class="banner-panel" id="bannerPanelUI">
+        </div> <div class="banner-panel" id="bannerPanelUI" style="margin-top: 2px; margin-bottom: 8px; position: relative; z-index: 9;">
             <div class="banner-placeholder" id="bannerPlaceholder">
                 <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                 <span>Chưa có ảnh banner</span>
@@ -3130,6 +3455,7 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
             <img id="bannerImgUI" src="" alt="Banner" style="display:none;">
         </div>
 
+    </div>
         <div id="saleTabTrigger" class="sale-tab-trigger" onclick="window.openSaleModal()"></div> 
         
         <!-- LƯỚI SẢN PHẨM MƯỢT MÀ -->
@@ -3920,8 +4246,8 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
     </div>
 
     <div class="modal-overlay" id="settingsModal">
-        <div class="bottom-sheet" style="margin: 0 auto; min-width: 100%; width: 100%; box-sizing: border-box;">
-            <div class="sheet-header"><h2 style="display:flex;align-items:center;gap:7px;"><svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>Cài Đặt Hệ Thống</h2><button class="icon-btn" onclick="window.closeModal('settingsModal')">✕</button></div>
+        <div class="bottom-sheet" style="margin: 0 auto; min-width: 100%; width: 100%; box-sizing: border-box; height: 92vh; max-height: 92vh; display: flex; flex-direction: column;">
+            <div class="sheet-header" style="flex-shrink:0;"><h2 style="display:flex;align-items:center;gap:7px;"><svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>Cài Đặt Hệ Thống</h2><button class="icon-btn" onclick="window.closeModal('settingsModal')">✕</button></div>
 
             <!-- TAB NAV GỌN -->
             <div class="settings-tab-nav">
@@ -3933,6 +4259,9 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
                 <button class="settings-tab-btn" onclick="window.switchSettingsTab('bulk')"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="display:inline;vertical-align:-2px;margin-right:4px;"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Đổi Giá</button>
                 <button class="settings-tab-btn" onclick="window.switchSettingsTab('banner')"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="display:inline;vertical-align:-2px;margin-right:4px;"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Banner</button>
             </div>
+
+            <!-- TAB PANELS WRAPPER: chiều cao cố định, scroll bên trong từng tab -->
+            <div class="settings-tab-panels-wrapper">
 
             <!-- TAB: HẠNG & VÒNG QUAY -->
             <div class="settings-tab-panel active" id="stab-rank">
@@ -4014,7 +4343,18 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
                 <div class="form-group"><label>Nội dung thông báo ghép xe:</label><textarea id="setLogisticsText" class="form-control" rows="2"></textarea></div>
                 <div style="height:1px; background:rgba(255,255,255,0.08); margin:14px 0;"></div>
                 <div class="flex-between" style="margin-bottom:10px;"><label style="margin:0; font-weight:800; display:flex; align-items:center; gap:6px;"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Chữ Chạy:</label><label class="toggle-switch"><input type="checkbox" id="setMarqueeToggle"><span class="slider"></span></label></div>
-                <div class="form-group"><textarea id="setMarqueeText" class="form-control" rows="2"></textarea></div>
+                <div class="form-group">
+                    <div id="setMarqueeText"
+                        contenteditable="true"
+                        class="form-control"
+                        style="min-height:52px; max-height:120px; overflow-y:auto; white-space:nowrap; overflow-x:auto; line-height:2; display:flex; align-items:center; flex-wrap:nowrap; gap:4px; cursor:text; padding:8px 12px;"
+                        data-placeholder="Nhập chữ chạy hoặc dán ảnh PNG..."
+                    ></div>
+                    <div style="font-size:10px; color:rgba(255,255,255,0.35); margin-top:6px; display:flex; align-items:center; gap:4px;">
+                        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/></svg>
+                        Copy ảnh PNG → Dán vào đây (Ctrl+V / ⌘V). Ảnh nền trong suốt được giữ nguyên.
+                    </div>
+                </div>
                 <button class="btn-submit" onclick="window.saveSettings()" style="display:flex;align-items:center;justify-content:center;gap:6px;"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Lưu Cài Đặt</button>
             </div>
 
@@ -4050,11 +4390,29 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
 
                 <!-- Upload ảnh -->
                 <div class="form-group">
-                    <label style="display:flex; align-items:center; gap:6px;">
+                    <label style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
                         <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                         Upload Ảnh Banner (JPG/PNG):
                     </label>
-                    <input type="file" id="bannerFileInput" accept="image/*" class="form-control" style="padding:8px;" onchange="window.onBannerFileSelected(this)">
+                    <!-- Custom file picker button -->
+                    <input type="file" id="bannerFileInput" accept="image/*" style="display:none;" onchange="window.onBannerFileSelected(this)">
+                    <div onclick="document.getElementById('bannerFileInput').click()"
+                        style="display:flex; align-items:center; gap:10px; padding:11px 16px; border-radius:14px;
+                               background:linear-gradient(135deg,rgba(10,132,255,0.12),rgba(191,90,242,0.12));
+                               border:0.5px dashed rgba(255,255,255,0.3); cursor:pointer;
+                               transition:all 0.22s; backdrop-filter:blur(10px);"
+                        ontouchstart="this.style.opacity='0.7'" ontouchend="this.style.opacity='1'" onmousedown="this.style.opacity='0.7'" onmouseup="this.style.opacity='1'">
+                        <span style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;
+                                     background:linear-gradient(135deg,rgba(10,132,255,0.3),rgba(191,90,242,0.3));
+                                     border:0.5px solid rgba(255,255,255,0.2); flex-shrink:0;">
+                            <svg width="15" height="15" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        </span>
+                        <div style="flex:1; min-width:0;">
+                            <div id="bannerFileLabel" style="font-size:12px; font-weight:700; color:rgba(255,255,255,0.85); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">📎 Chọn ảnh từ thiết bị</div>
+                            <div style="font-size:10px; color:rgba(255,255,255,0.35); margin-top:1px;">JPG hoặc PNG · Tối đa 3MB</div>
+                        </div>
+                        <svg width="14" height="14" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                    </div>
                 </div>
 
                 <!-- Hiệu ứng -->
@@ -4096,9 +4454,10 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
                 <br>
             </div>
 
+            </div><!-- end .settings-tab-panels-wrapper -->
+
         </div>
     </div>
-
         <div class="modal-overlay" id="saleModal">
         <div class="bottom-sheet" style="height: 85vh; display: flex; flex-direction: column;">
             <div class="sheet-header">
@@ -5073,11 +5432,10 @@ window.appConfirm = function(title, msg, callback) { document.getElementById('co
 };
         window.closeLightbox = function() { const lb = document.getElementById('lightbox'); if(lb){ lb.classList.remove('show'); }};
 
-        window.addEventListener('popstate', function(e) {
+                window.addEventListener('popstate', function(e) {
             // Nếu đang đóng bằng nút ✕ (closeModal gọi history.back) → bỏ qua, không xử lý
             if (window._closingByBtn) {
                 window._closingByBtn = false;
-                // Nếu vẫn còn modal đang mở sau khi nút ✕ đóng 1 modal → push state để back tiếp được
                 var remainOpen = document.querySelector('.modal-overlay.show');
                 if (remainOpen) {
                     history.pushState({ modal: remainOpen.id }, '', '');
@@ -5086,65 +5444,53 @@ window.appConfirm = function(title, msg, callback) { document.getElementById('co
                 }
                 return;
             }
-                        // Nếu đang xem ảnh to → chỉ đóng lightbox
+            
+            // Nếu đang xem ảnh to → chỉ đóng lightbox
             var wasLightboxOpen = document.getElementById('lightbox') && document.getElementById('lightbox').classList.contains('show');
             if (wasLightboxOpen) {
                 window.closeLightbox();
-                // Đẩy lại state để back tiếp theo không đóng nhầm Modal khác
                 history.pushState({ modal: 'detailModal' }, '', '');
                 return;
             }
 
-
-            // Ưu tiên kiểm tra calcModal đang mở (không phải .modal-overlay chuẩn)
+            // Ưu tiên kiểm tra calcModal đang mở
             var calcEl = document.getElementById('calcModal');
             if (calcEl && calcEl.classList.contains('show')) {
                 calcEl.classList.remove('show');
                 calcEl.style.zIndex = '';
-                // Nếu còn detailModal đang mở thì push state để back lần sau đóng nó
-                var stillOpen = document.querySelector('.modal-overlay.show');
-                if (stillOpen) {
-                    history.pushState({ modal: stillOpen.id }, '', '');
+                var stillOpenCalc = document.querySelector('.modal-overlay.show');
+                if (stillOpenCalc) {
+                    history.pushState({ modal: stillOpenCalc.id }, '', '');
                 } else {
                     history.pushState({ modal: 'base' }, '', '');
                 }
                 return;
             }
 
-            // Tìm modal nào đang mở (ưu tiên modal có z-index cao nhất = mở sau cùng)
+            // Tìm modal nào đang mở (Bảng Mẹ & Bảng Con)
             var openModals = Array.from(document.querySelectorAll('.modal-overlay.show'));
             if (openModals.length > 0) {
-                // Đóng modal mở sau cùng (z-index cao nhất hoặc cuối danh sách DOM)
+                // Đóng Bảng Con (nằm trên cùng / z-index cao nhất)
                 var topModal = openModals.reduce(function(top, el) {
-                    var z = parseInt(el.style.zIndex) || 100;
-                    var topZ = parseInt(top.style.zIndex) || 100;
+                    var z = parseInt(window.getComputedStyle(el).zIndex) || 100;
+                    var topZ = parseInt(window.getComputedStyle(top).zIndex) || 100;
                     return z >= topZ ? el : top;
                 });
-
-                var wasDetailOpen = topModal.id === 'detailModal';
-
+                
                 topModal.classList.remove('show');
-                topModal.style.zIndex = '';
-
-                // Nếu vẫn còn modal khác đang mở → giữ modal-open, đẩy lại state để back tiếp được
-                var stillOpen = document.querySelector('.modal-overlay.show');
-                if (stillOpen) {
-                    history.pushState({ modal: stillOpen.id }, '', '');
-                } else {
+                
+                // KIỂM TRA QUAN TRỌNG: Còn Bảng Mẹ ở dưới không?
+                var stillOpen = document.querySelectorAll('.modal-overlay.show');
+                if (stillOpen.length === 0) {
+                    // Hết sạch bảng thì mới mở khóa cuộn trang
                     document.body.classList.remove('modal-open');
-                    // Khôi phục vị trí cuộn nếu vừa đóng detailModal
-                    if (wasDetailOpen && window._savedScrollY !== undefined) {
-                        var savedY = window._savedScrollY;
-                        setTimeout(function() {
-                            window.scrollTo({ top: savedY, behavior: 'instant' });
-                        }, 20);
+                    if (window._savedScrollY !== undefined) {
+                        setTimeout(function() { window.scrollTo({ top: window._savedScrollY, behavior: 'instant' }); }, 20);
                     }
-                    // Đẩy state base để lần back tiếp theo không thoát khỏi trang
-                    history.pushState({ modal: 'base' }, '', '');
+                } else {
+                    // NẾU CÒN BẢNG MẸ -> BẮT BUỘC PHẢI "MỒI LẠI TÍN HIỆU" CHO ĐIỆN THOẠI
+                    history.pushState({ modal: 'still_open' }, '', '');
                 }
-            } else {
-                // Không có modal nào mở → đẩy lại state base để tránh thoát trang
-                history.pushState({ modal: 'base' }, '', '');
             }
         });
 
@@ -6332,7 +6678,7 @@ window.updateWheelPointsDisplay = function(store) {
                             <button onclick="window.confirmRedeemNotify()" style="margin-top:8px;width:100%;padding:7px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.35);color:#fca5a5;border-radius:10px;font-size:11px;font-weight:800;cursor:pointer;">Đã hiểu, xóa thông báo này</button>`;
                             notifyEl.style.display = 'block';
                             // Thông báo toast bị từ chối
-                            window.showToast('❌ Yêu cầu đổi điểm bị từ chối! Điểm đã hoàn lại.');
+                            window.showToast('Yêu cầu đổi điểm bị từ chối! Điểm đã hoàn lại.');
                             if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
                             // Không tự ẩn — để khách chủ động bấm xóa
                         } else {
@@ -7039,58 +7385,86 @@ window.updateWheelPointsDisplay = function(store) {
         };
 
         window.deleteIssuedVoucher = function(firebaseKey, cardId) {
-    window.appConfirm('Xác Nhận Xóa Mã', 'Hệ thống sẽ tự động kiểm tra: Nếu mã CHƯA DÙNG sẽ hoàn lại điểm, nếu mã ĐÃ DÙNG sẽ chỉ dọn dẹp khỏi danh sách.', function() {
-        var card = document.getElementById(cardId);
-        if (card) card.remove(); // Ẩn thẻ UI trên máy Admin cho nhanh
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; z-index:999999999; display:flex; align-items:center; justify-content:center; padding:20px; box-sizing:border-box; background:rgba(0,0,0,0.75); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); opacity:0; transition:opacity 0.25s ease;';
+    overlay.id = "deleteVoucherPopup";
 
-        if (dbRef) {
-            // 1. Xóa trong danh sách Admin
-            firebase.database().ref('phucminhlong_redeem_requests/' + firebaseKey).remove();
+    overlay.innerHTML = `
+        <div style="background:rgba(28,28,30,0.97); border:0.5px solid rgba(255,255,255,0.14); border-radius:26px; padding:28px 22px; width:100%; max-width:320px; text-align:center; box-shadow:0 24px 64px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.08); transform:scale(0.88) translateY(16px); transition:transform 0.32s cubic-bezier(0.34,1.44,0.64,1); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);">
+            <div style="width:52px; height:52px; border-radius:50%; background:rgba(255,69,58,0.18); border:0.5px solid rgba(255,69,58,0.45); display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+                <svg width="26" height="26" fill="none" stroke="#FF453A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185z"/></svg>
+            </div>
+            <div style="font-size:17px; font-weight:900; color:white; margin-bottom:10px; letter-spacing:0.2px;">Gỡ Bỏ Mã Ưu Đãi</div>
+            <div style="font-size:13px; color:rgba(255,255,255,0.6); margin-bottom:22px; line-height:1.65;">Mã này <b style="color:#FF9F0A;">ĐÃ ĐƯỢC DÙNG</b> cho đơn hàng chưa?<br>Hãy chọn đúng để tránh sai lệch sổ sách!</div>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:14px;">
+                <button onclick="window.confirmVoucherDeleteLogic('${firebaseKey}', '${cardId}', false)" style="width:100%; padding:14px; background:rgba(255,69,58,0.15); border:1.5px solid rgba(255,69,58,0.7); border-radius:30px; color:#FF453A; font-weight:900; font-size:13px; cursor:pointer; font-family:inherit; transition:opacity 0.15s;" ontouchstart="this.style.opacity='0.7'" ontouchend="this.style.opacity='1'">Mã Đã Dùng · Xoá Không Hoàn Điểm</button>
+                <button onclick="window.confirmVoucherDeleteLogic('${firebaseKey}', '${cardId}', true)" style="width:100%; padding:14px; background:linear-gradient(135deg,#30D158,#25a244); border:none; border-radius:30px; color:white; font-weight:900; font-size:13px; cursor:pointer; font-family:inherit; box-shadow:0 4px 14px rgba(48,209,88,0.35); transition:opacity 0.15s;" ontouchstart="this.style.opacity='0.7'" ontouchend="this.style.opacity='1'">Mã Chưa Dùng · Xoá &amp; Hoàn Điểm</button>
+            </div>
+            <button onclick="document.getElementById('deleteVoucherPopup').remove()" style="width:100%; padding:11px; background:transparent; border:0.5px solid rgba(255,255,255,0.13); border-radius:30px; color:rgba(255,255,255,0.4); font-weight:700; font-size:12px; cursor:pointer; font-family:inherit; letter-spacing:0.5px; transition:opacity 0.15s;" ontouchstart="this.style.opacity='0.7'" ontouchend="this.style.opacity='1'">Hủy Bỏ</button>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => {
+        overlay.style.opacity = '1';
+        const box = overlay.querySelector('div > div');
+        if (box) { box.style.transform = 'scale(1) translateY(0)'; }
+    });
+};
 
-            // 2. Dùng Transaction truy thẳng vào Database máy chủ để xử lý
-            dbRef.child('agencies').transaction(function(agenciesData) {
-                if (!agenciesData) return agenciesData;
-                var agenciesArray = Array.isArray(agenciesData) ? agenciesData : Object.values(agenciesData);
-                
-                if (window._deletingVoucherStoreCode) {
-                    var ag = agenciesArray.find(function(a){ return a.code === window._deletingVoucherStoreCode; });
-                    if (ag && ag.redeemHistory) {
+// HÀM XỬ LÝ LOGIC SAU KHI ADMIN CHỌN
+window.confirmVoucherDeleteLogic = function(firebaseKey, cardId, isRefund) {
+    // Đóng popup
+    const popup = document.getElementById('deleteVoucherPopup');
+    if (popup) popup.remove();
+
+    // Xóa thẻ giao diện ngay lập tức cho mượt
+    var card = document.getElementById(cardId);
+    if (card) card.remove();
+
+    if (dbRef) {
+        // 1. Xóa trong danh sách Admin
+        firebase.database().ref('phucminhlong_redeem_requests/' + firebaseKey).remove();
+
+        // 2. Chạy giao dịch Database y như code cũ gốc của bạn để tránh lỗi "hiện lại"
+        dbRef.child('agencies').transaction(function(agenciesData) {
+            if (!agenciesData) return agenciesData;
+            var agenciesArray = Array.isArray(agenciesData) ? agenciesData : Object.values(agenciesData);
+            
+            if (window._deletingVoucherStoreCode) {
+                var ag = agenciesArray.find(function(a){ return a.code === window._deletingVoucherStoreCode; });
+                if (ag && ag.redeemHistory) {
+                    // Lọc bỏ mã bị xóa
+                    ag.redeemHistory = ag.redeemHistory.filter(function(h){ return h.voucherCode !== window._deletingVoucherCode; });
+                    
+                    // CHỈ HOÀN ĐIỂM KHI ADMIN BẤM NÚT XANH (isRefund = true)
+                    if (isRefund && window._deletingVoucherPts && window._deletingVoucherPts > 0) {
+                        var currentPts = parseInt(ag.points || 0);
+                        var refundPts = parseInt(window._deletingVoucherPts);
+                        ag.points = currentPts + refundPts;
                         
-                        // BƯỚC QUAN TRỌNG: TÌM MÃ NÀY ĐỂ XEM ĐÃ DÙNG CHƯA TRƯỚC KHI XÓA
-                        var targetVoucher = ag.redeemHistory.find(function(h){ return h.voucherCode === window._deletingVoucherCode; });
-                        var isUsed = targetVoucher ? targetVoucher.used : false; // Nếu true là đã dùng
-
-                        // Lọc bỏ mã bị xóa khỏi danh sách của khách
-                        ag.redeemHistory = ag.redeemHistory.filter(function(h){ return h.voucherCode !== window._deletingVoucherCode; });
-                        
-                        // 🤖 LOGIC THÔNG MINH: CHỈ HOÀN ĐIỂM NẾU MÃ CHƯA SỬ DỤNG
-                        if (!isUsed) {
-                            if (window._deletingVoucherPts && window._deletingVoucherPts > 0) {
-                                var currentPts = parseInt(ag.points || 0);
-                                var refundPts = parseInt(window._deletingVoucherPts);
-                                ag.points = currentPts + refundPts;
-                                
-                                if (!ag.crmHistory) ag.crmHistory = [];
-                                ag.crmHistory.push({
-                                    time: Date.now(),
-                                    type: 'redeemRefund',
-                                    refundBy: 'admin_delete',
-                                    amount: refundPts,
-                                    orderName: 'Hoàn điểm (Xóa mã chưa dùng): ' + (window._deletingVoucherLabel || window._deletingVoucherCode)
-                                });
-                            }
-                        }
+                        if (!ag.crmHistory) ag.crmHistory = [];
+                        ag.crmHistory.push({
+                            time: Date.now(),
+                            type: 'redeemRefund',
+                            refundBy: 'admin_delete',
+                            amount: refundPts,
+                            orderName: 'Hoàn điểm mã ưu đãi: ' + (window._deletingVoucherLabel || window._deletingVoucherCode)
+                        });
                     }
                 }
-                return agenciesData;
-            }, function(error, committed, snapshot) {
-                if (committed) {
-                    window.agencies = Array.isArray(snapshot.val()) ? snapshot.val() : Object.values(snapshot.val());
-                    window.showToast('Đã dọn mã và xử lý điểm chuẩn xác!');
+            }
+            return agenciesData;
+        }, function(error, committed, snapshot) {
+            if (committed) {
+                window.agencies = Array.isArray(snapshot.val()) ? snapshot.val() : Object.values(snapshot.val());
+                if (isRefund) {
+                    window.showToast('Đã xóa mã & Hoàn lại điểm!');
+                } else {
+                    window.showToast('Đã xóa mã (KHÔNG hoàn điểm)');
                 }
-            });
-        }
-    });
+            }
+        });
+    }
 };
 
         window.loadRedeemRequests = function() {
@@ -7483,35 +7857,39 @@ window.askDeleteHistory = function(idx) {
     }
 
     const overlay = document.createElement('div');
-    overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:99999999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px); opacity:0; transition:opacity 0.2s;";
+    overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.75); z-index:999999999; display:flex; align-items:center; justify-content:center; padding:20px; box-sizing:border-box; backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); opacity:0; transition:opacity 0.25s ease;';
     overlay.id = "deleteConfirmPopup";
     
     // NẾU MÃ ĐÃ DÙNG -> CHỈ HIỆN 1 NÚT ÉP XÓA
     let buttonsHtml = '';
     if (isUsedCode) {
-        buttonsHtml = `<button onclick="window.confirmDeleteLogic(${idx}, false)" style="width:100%; padding:15px; background:rgba(255,69,58,0.15); border:1px solid #FF453A; border-radius:14px; color:#FF453A; font-weight:900; margin-bottom:20px; font-size:14px; box-shadow:0 4px 15px rgba(255,69,58,0.2);">ÉP XOÁ (KHÔNG HOÀN ĐIỂM)</button>`;
+        buttonsHtml = `<button onclick="window.confirmDeleteLogic(${idx}, false)" style="width:100%; padding:14px; background:rgba(255,69,58,0.15); border:1.5px solid rgba(255,69,58,0.7); border-radius:30px; color:#FF453A; font-weight:900; font-size:13px; cursor:pointer; font-family:inherit; transition:opacity 0.15s;" ontouchstart="this.style.opacity='0.7'" ontouchend="this.style.opacity='1'">ÉP XOÁ (KHÔNG HOÀN ĐIỂM)</button>`;
     } else {
         buttonsHtml = `
-            <button onclick="window.confirmDeleteLogic(${idx}, true)" style="width:100%; padding:15px; background:#30D158; border:none; border-radius:14px; color:black; font-weight:900; margin-bottom:10px; font-size:14px; box-shadow:0 4px 15px rgba(48,209,88,0.3);">XOÁ & ${actionTxt}</button>
-            <button onclick="window.confirmDeleteLogic(${idx}, false)" style="width:100%; padding:15px; background:rgba(255,255,255,0.08); border:0.5px solid rgba(255,255,255,0.1); border-radius:14px; color:white; font-weight:700; margin-bottom:20px; font-size:14px;">CHỈ XOÁ DÒNG NÀY</button>
+            <button onclick="window.confirmDeleteLogic(${idx}, true)" style="width:100%; padding:14px; background:linear-gradient(135deg,#30D158,#25a244); border:none; border-radius:30px; color:white; font-weight:900; font-size:13px; cursor:pointer; font-family:inherit; box-shadow:0 4px 14px rgba(48,209,88,0.35); transition:opacity 0.15s;" ontouchstart="this.style.opacity='0.7'" ontouchend="this.style.opacity='1'">XOÁ &amp; ${actionTxt}</button>
+            <button onclick="window.confirmDeleteLogic(${idx}, false)" style="width:100%; padding:14px; background:rgba(255,255,255,0.07); border:0.5px solid rgba(255,255,255,0.2); border-radius:30px; color:rgba(255,255,255,0.85); font-weight:700; font-size:13px; cursor:pointer; font-family:inherit; transition:opacity 0.15s;" ontouchstart="this.style.opacity='0.7'" ontouchend="this.style.opacity='1'">CHỈ XOÁ DÒNG NÀY</button>
         `;
     }
 
     overlay.innerHTML = `
-        <div style="background:#1c1c1e; border:1px solid rgba(255,255,255,0.15); border-radius:28px; padding:24px; width:90%; max-width:340px; text-align:center; box-shadow:0 25px 50px rgba(0,0,0,0.5); transform:scale(0.9); transition:transform 0.2s;">
-            <div style="width:56px; height:56px; border-radius:50%; background:${isUsedCode ? 'rgba(255,69,58,0.2)' : 'rgba(10,132,255,0.2)'}; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
-                <svg width="28" height="28" fill="none" stroke="${isUsedCode ? '#FF453A' : '#0A84FF'}" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        <div style="background:rgba(28,28,30,0.97); border:0.5px solid rgba(255,255,255,0.14); border-radius:26px; padding:28px 22px; width:100%; max-width:320px; text-align:center; box-shadow:0 24px 64px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.08); transform:scale(0.88) translateY(16px); transition:transform 0.32s cubic-bezier(0.34,1.44,0.64,1), opacity 0.25s ease; backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);">
+            <div style="width:52px; height:52px; border-radius:50%; background:${isUsedCode ? 'rgba(255,69,58,0.18)' : 'rgba(10,132,255,0.18)'}; border:0.5px solid ${isUsedCode ? 'rgba(255,69,58,0.45)' : 'rgba(10,132,255,0.45)'}; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+                <svg width="26" height="26" fill="none" stroke="${isUsedCode ? '#FF453A' : '#0A84FF'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
             </div>
-            <div style="font-size:19px; font-weight:900; color:white; margin-bottom:10px;">Xác Nhận Gỡ Bỏ</div>
-            <div style="font-size:13.5px; color:rgba(255,255,255,0.7); margin-bottom:24px; line-height:1.5;">${warningMsg}</div>
-            
-            ${buttonsHtml}
-            
-            <div onclick="document.getElementById('deleteConfirmPopup').remove()" style="color:rgba(255,255,255,0.4); font-size:12px; font-weight:700; cursor:pointer; text-transform:uppercase; letter-spacing:1px;">Hủy bỏ</div>
+            <div style="font-size:17px; font-weight:900; color:white; margin-bottom:10px; letter-spacing:0.2px;">Xác Nhận Gỡ Bỏ</div>
+            <div style="font-size:13px; color:rgba(255,255,255,0.6); margin-bottom:22px; line-height:1.65;">${warningMsg}</div>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:14px;">
+                ${buttonsHtml}
+            </div>
+            <button onclick="document.getElementById('deleteConfirmPopup').remove()" style="width:100%; padding:11px; background:transparent; border:0.5px solid rgba(255,255,255,0.13); border-radius:30px; color:rgba(255,255,255,0.4); font-weight:700; font-size:12px; cursor:pointer; font-family:inherit; letter-spacing:0.5px; transition:opacity 0.15s;" ontouchstart="this.style.opacity='0.7'" ontouchend="this.style.opacity='1'">Hủy Bỏ</button>
         </div>
     `;
     document.body.appendChild(overlay);
-    setTimeout(() => { overlay.style.opacity = '1'; overlay.children[0].style.transform = 'scale(1)'; }, 10);
+    requestAnimationFrame(() => {
+        overlay.style.opacity = '1';
+        const box = overlay.querySelector('div > div');
+        if (box) { box.style.transform = 'scale(1) translateY(0)'; }
+    });
 };
 
 window.confirmDeleteLogic = function(idx, isRefund) {
@@ -8311,7 +8689,11 @@ window.handleAgencySubmit = function(e) {
         };
         window.applySettingsUI = function() {
             const tabBtn = document.getElementById('saleTabTrigger'); tabBtn.style.display = window.appSettings.showSaleTab ? 'flex' : 'none'; tabBtn.innerHTML = `<span>${window.appSettings.saleTitle}</span>`;
-            document.getElementById('saleModalTitleUI').innerHTML = `🔥 ${window.appSettings.saleTitle}`; document.getElementById('saleModalTextUI').textContent = window.appSettings.saleText; document.getElementById('marqueeTextUI').textContent = window.appSettings.marqueeText; document.getElementById('phoneBtnUI').href = `tel:${window.appSettings.storePhone.replace(/\s+/g, '')}`; document.getElementById('zaloBtnUI').href = `https://zalo.me/${window.appSettings.storePhone.replace(/\s+/g, '')}`; document.getElementById('stNameUI').textContent = window.appSettings.storeName; document.getElementById('stTimeUI').textContent = ` ${window.appSettings.storeTime}`; document.getElementById('stPhoneUI').textContent = ` ${window.appSettings.storePhone}`; document.getElementById('stAddressUI').textContent = ` ${window.appSettings.storeAddress}`;
+            document.getElementById('saleModalTitleUI').innerHTML = `🔥 ${window.appSettings.saleTitle}`; document.getElementById('saleModalTextUI').textContent = window.appSettings.saleText;
+            // Marquee dùng innerHTML để hiển thị ảnh inline
+            var mUI = document.getElementById('marqueeTextUI');
+            if(mUI) mUI.innerHTML = window.appSettings.marqueeText || '';
+            document.getElementById('phoneBtnUI').href = `tel:${window.appSettings.storePhone.replace(/\s+/g, '')}`; document.getElementById('zaloBtnUI').href = `https://zalo.me/${window.appSettings.storePhone.replace(/\s+/g, '')}`; document.getElementById('stNameUI').textContent = window.appSettings.storeName; document.getElementById('stTimeUI').textContent = ` ${window.appSettings.storeTime}`; document.getElementById('stPhoneUI').textContent = ` ${window.appSettings.storePhone}`; document.getElementById('stAddressUI').textContent = ` ${window.appSettings.storeAddress}`;
             const btnMap = document.getElementById('btnOpenMap'); if(window.appSettings.storeMapLink) { btnMap.style.display = 'flex'; } else { btnMap.style.display = 'none'; }
             const btnBank = document.getElementById('btnOpenBankInfo'); if(btnBank) btnBank.style.display = window.appSettings.storeBankNumber ? 'flex' : 'none';
             const logBanner = document.getElementById('logisticsBannerUI'); if(window.appSettings.showLogistics) { logBanner.style.display = 'flex'; document.getElementById('logisticsTextUI').innerHTML = window.appSettings.logisticsText; } else { logBanner.style.display = 'none'; }
@@ -8327,7 +8709,11 @@ window.handleAgencySubmit = function(e) {
             }
             // Sync store codes textarea (nếu có)
             var storeCodesEl = document.getElementById('setStoreCodes'); if(storeCodesEl) storeCodesEl.value = window.appSettings.storeCodesRaw || '';
-            document.getElementById('setSaleToggle').checked = window.appSettings.showSaleTab; document.getElementById('setSaleTitle').value = window.appSettings.saleTitle; document.getElementById('setSaleText').value = window.appSettings.saleText; document.getElementById('setMarqueeText').value = window.appSettings.marqueeText; document.getElementById('setStoreName').value = window.appSettings.storeName; document.getElementById('setStoreTime').value = window.appSettings.storeTime; document.getElementById('setStorePhone').value = window.appSettings.storePhone; document.getElementById('setStoreAddress').value = window.appSettings.storeAddress; document.getElementById('setStoreMapLink').value = window.appSettings.storeMapLink; document.getElementById('setStoreBankNumber').value = window.appSettings.storeBankNumber || ''; document.getElementById('setStoreBankName').value = window.appSettings.storeBankName || ''; document.getElementById('setStoreBankBrand').value = window.appSettings.storeBankBrand || ''; document.getElementById('setLogisticsToggle').checked = window.appSettings.showLogistics; document.getElementById('setLogisticsText').value = window.appSettings.logisticsText || ""; document.getElementById('setMarqueeToggle').checked = (window.appSettings.showMarquee !== false);
+            document.getElementById('setSaleToggle').checked = window.appSettings.showSaleTab; document.getElementById('setSaleTitle').value = window.appSettings.saleTitle; document.getElementById('setSaleText').value = window.appSettings.saleText;
+            // Load marquee vào contenteditable
+            var mqEditor = document.getElementById('setMarqueeText');
+            if(mqEditor) mqEditor.innerHTML = window.appSettings.marqueeText || '';
+            document.getElementById('setStoreName').value = window.appSettings.storeName; document.getElementById('setStoreTime').value = window.appSettings.storeTime; document.getElementById('setStorePhone').value = window.appSettings.storePhone; document.getElementById('setStoreAddress').value = window.appSettings.storeAddress; document.getElementById('setStoreMapLink').value = window.appSettings.storeMapLink; document.getElementById('setStoreBankNumber').value = window.appSettings.storeBankNumber || ''; document.getElementById('setStoreBankName').value = window.appSettings.storeBankName || ''; document.getElementById('setStoreBankBrand').value = window.appSettings.storeBankBrand || ''; document.getElementById('setLogisticsToggle').checked = window.appSettings.showLogistics; document.getElementById('setLogisticsText').value = window.appSettings.logisticsText || ""; document.getElementById('setMarqueeToggle').checked = (window.appSettings.showMarquee !== false);
             document.getElementById('setRankGold').value = window.appSettings.rankGold || 500; document.getElementById('setRankPlatinum').value = window.appSettings.rankPlatinum || 1000; document.getElementById('setRankDiamond').value = window.appSettings.rankDiamond || 2000; document.getElementById('setRankVip').value = window.appSettings.rankVip || 5000; document.getElementById('setWheelPrizes').value = window.appSettings.wheelPrizes || "Giảm 50k, Áo thun, May mắn, Giảm 100k, Freeship, Kệ mẫu"; document.getElementById('setSpinCost').value = window.appSettings.spinCost || 50; document.getElementById('setSpinBac').value = window.appSettings.spinBac || 1; document.getElementById('setSpinVang').value = window.appSettings.spinVang || 2; document.getElementById('setSpinBachKim').value = window.appSettings.spinBachKim || 3; document.getElementById('setSpinKimCuong').value = window.appSettings.spinKimCuong || 4; document.getElementById('setSpinVipRank').value = window.appSettings.spinVipRank || 5;
             const setSpinEnabledEl = document.getElementById('setSpinEnabled');
             if(setSpinEnabledEl) setSpinEnabledEl.checked = (window.appSettings.spinEnabled !== false);
@@ -8337,7 +8723,11 @@ window.handleAgencySubmit = function(e) {
         
         window.saveSettings = function() {
             localStorage.setItem('pml_shipping', document.getElementById('globalShippingInput').value || '5');
-            window.appSettings.showSaleTab = document.getElementById('setSaleToggle').checked; window.appSettings.saleTitle = document.getElementById('setSaleTitle').value || "🔥 SIÊU SALE"; window.appSettings.saleText = document.getElementById('setSaleText').value; window.appSettings.marqueeText = document.getElementById('setMarqueeText').value || "CHÀO MỪNG QUÝ KHÁCH..."; window.appSettings.storeName = document.getElementById('setStoreName').value; window.appSettings.storeTime = document.getElementById('setStoreTime').value; window.appSettings.storePhone = document.getElementById('setStorePhone').value; window.appSettings.storeAddress = document.getElementById('setStoreAddress').value; window.appSettings.storeMapLink = document.getElementById('setStoreMapLink').value; window.appSettings.storeBankNumber = document.getElementById('setStoreBankNumber').value; window.appSettings.storeBankName = document.getElementById('setStoreBankName').value; window.appSettings.storeBankBrand = document.getElementById('setStoreBankBrand').value; window.appSettings.showLogistics = document.getElementById('setLogisticsToggle').checked; window.appSettings.logisticsText = document.getElementById('setLogisticsText').value; window.appSettings.showMarquee = document.getElementById('setMarqueeToggle').checked; window.appSettings.rankGold = parseFloat(document.getElementById('setRankGold').value) || 500; window.appSettings.rankPlatinum = parseFloat(document.getElementById('setRankPlatinum').value) || 1000; window.appSettings.rankDiamond = parseFloat(document.getElementById('setRankDiamond').value) || 2000; window.appSettings.rankVip = parseFloat(document.getElementById('setRankVip').value) || 5000; window.appSettings.wheelPrizes = document.getElementById('setWheelPrizes').value; window.appSettings.spinCost = parseFloat(document.getElementById('setSpinCost').value) || 50; window.appSettings.spinBac = parseFloat(document.getElementById('setSpinBac').value) || 1; window.appSettings.spinVang = parseFloat(document.getElementById('setSpinVang').value) || 2; window.appSettings.spinBachKim = parseFloat(document.getElementById('setSpinBachKim').value) || 3; window.appSettings.spinKimCuong = parseFloat(document.getElementById('setSpinKimCuong').value) || 4; window.appSettings.spinVipRank = parseFloat(document.getElementById('setSpinVipRank').value) || 5;
+            window.appSettings.showSaleTab = document.getElementById('setSaleToggle').checked; window.appSettings.saleTitle = document.getElementById('setSaleTitle').value || "🔥 SIÊU SALE"; window.appSettings.saleText = document.getElementById('setSaleText').value;
+            // Đọc marquee từ contenteditable (hỗ trợ ảnh inline)
+            var marqueeEl = document.getElementById('setMarqueeText');
+            window.appSettings.marqueeText = marqueeEl ? marqueeEl.innerHTML.trim() : "CHÀO MỪNG QUÝ KHÁCH...";
+            window.appSettings.storeName = document.getElementById('setStoreName').value; window.appSettings.storeTime = document.getElementById('setStoreTime').value; window.appSettings.storePhone = document.getElementById('setStorePhone').value; window.appSettings.storeAddress = document.getElementById('setStoreAddress').value; window.appSettings.storeMapLink = document.getElementById('setStoreMapLink').value; window.appSettings.storeBankNumber = document.getElementById('setStoreBankNumber').value; window.appSettings.storeBankName = document.getElementById('setStoreBankName').value; window.appSettings.storeBankBrand = document.getElementById('setStoreBankBrand').value; window.appSettings.showLogistics = document.getElementById('setLogisticsToggle').checked; window.appSettings.logisticsText = document.getElementById('setLogisticsText').value; window.appSettings.showMarquee = document.getElementById('setMarqueeToggle').checked; window.appSettings.rankGold = parseFloat(document.getElementById('setRankGold').value) || 500; window.appSettings.rankPlatinum = parseFloat(document.getElementById('setRankPlatinum').value) || 1000; window.appSettings.rankDiamond = parseFloat(document.getElementById('setRankDiamond').value) || 2000; window.appSettings.rankVip = parseFloat(document.getElementById('setRankVip').value) || 5000; window.appSettings.wheelPrizes = document.getElementById('setWheelPrizes').value; window.appSettings.spinCost = parseFloat(document.getElementById('setSpinCost').value) || 50; window.appSettings.spinBac = parseFloat(document.getElementById('setSpinBac').value) || 1; window.appSettings.spinVang = parseFloat(document.getElementById('setSpinVang').value) || 2; window.appSettings.spinBachKim = parseFloat(document.getElementById('setSpinBachKim').value) || 3; window.appSettings.spinKimCuong = parseFloat(document.getElementById('setSpinKimCuong').value) || 4; window.appSettings.spinVipRank = parseFloat(document.getElementById('setSpinVipRank').value) || 5;
             window.appSettings.spinEnabled = document.getElementById('setSpinEnabled').checked;
             // Banner settings
             var bt = document.getElementById('setBannerToggle'); if(bt) window.appSettings.showBanner = bt.checked;
@@ -11149,6 +11539,8 @@ if (!savedCode) {
             var file = input.files[0];
             if (!file) return;
             if (file.size > 3 * 1024 * 1024) { window.showToast('Ảnh quá 3MB, chọn ảnh nhỏ hơn!'); return; }
+            var labelEl = document.getElementById('bannerFileLabel');
+            if(labelEl) labelEl.textContent = '✅ ' + file.name;
             var reader = new FileReader();
             reader.onload = function(e) {
                 window._bannerFileData = e.target.result;
@@ -11156,7 +11548,7 @@ if (!savedCode) {
                 var pe = document.getElementById('bannerPreviewEmpty');
                 if(pi) { pi.src = e.target.result; pi.style.display = 'block'; }
                 if(pe) pe.style.display = 'none';
-                document.getElementById('bannerUploadStatus').textContent = 'Đã chọn ảnh. Nhấn "Lưu & Upload" để lưu!';
+                document.getElementById('bannerUploadStatus').textContent = '';
             };
             reader.readAsDataURL(file);
         };
@@ -11213,15 +11605,19 @@ if (!savedCode) {
                     window.applyBannerUI();
                     var pi = document.getElementById('bannerPreviewImg'); if(pi){ pi.src = data.secure_url; pi.style.display='block'; }
                     var pe = document.getElementById('bannerPreviewEmpty'); if(pe) pe.style.display='none';
-                    status.textContent = '✅ Upload thành công!';
-                    status.style.color = '#30D158';
+                    status.textContent = '';
                     window._bannerFileData = null;
                     document.getElementById('bannerFileInput').value = '';
+                    var labelEl = document.getElementById('bannerFileLabel');
+                    if(labelEl) labelEl.textContent = '📎 Chọn ảnh từ thiết bị';
+                    if(btn) btn.disabled = false;
+                    window.closeModal('settingsModal');
+                    window.appAlert('Chào Phục', 'Đã lưu Banner thành công!');
                 } else {
                     status.textContent = '❌ ' + (data.error && data.error.message || 'Thử lại!');
                     status.style.color = '#FF453A';
+                    if(btn) btn.disabled = false;
                 }
-                if(btn) btn.disabled = false;
             }).catch(function() {
                 status.textContent = '❌ Lỗi kết nối!';
                 status.style.color = '#FF453A';
@@ -11247,6 +11643,75 @@ if (!savedCode) {
         };
 
         window.initApp();
+
+        // ══════════════════════════════════════════════════════════════
+        // MARQUEE EDITOR — HỖ TRỢ DÁN ẢNH PNG (nền trong suốt)
+        // ══════════════════════════════════════════════════════════════
+        (function() {
+            function initMarqueeEditor() {
+                var editor = document.getElementById('setMarqueeText');
+                if (!editor) return;
+
+                editor.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    var clipData = e.clipboardData || window.clipboardData;
+                    if (!clipData) return;
+
+                    // Ưu tiên: ảnh từ clipboard (copy từ web, Photoshop, ...)
+                    var items = Array.from(clipData.items || []);
+                    var imgItem = items.find(function(it) { return it.type.indexOf('image') !== -1; });
+
+                    if (imgItem) {
+                        var file = imgItem.getAsFile();
+                        if (!file) return;
+                        var reader = new FileReader();
+                        reader.onload = function(ev) {
+                            // Tạo img tag với base64, giữ nền trong suốt (PNG)
+                            var img = document.createElement('img');
+                            img.src = ev.target.result;
+                            img.style.cssText = 'height:28px; width:auto; vertical-align:middle; display:inline; object-fit:contain; border-radius:4px; cursor:default; flex-shrink:0;';
+                            img.draggable = false;
+                            // Chèn ảnh tại vị trí con trỏ
+                            var sel = window.getSelection();
+                            if (sel && sel.rangeCount) {
+                                var range = sel.getRangeAt(0);
+                                range.deleteContents();
+                                range.insertNode(img);
+                                range.setStartAfter(img);
+                                range.collapse(true);
+                                sel.removeAllRanges();
+                                sel.addRange(range);
+                            } else {
+                                editor.appendChild(img);
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        // Nếu paste text thuần — chèn bình thường, không giữ format HTML
+                        var text = clipData.getData('text/plain') || '';
+                        if (text) {
+                            document.execCommand('insertText', false, text);
+                        }
+                    }
+                });
+
+                // Ngăn Enter tạo thẻ <div>/<br> mới — giữ một dòng ngang
+                editor.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') e.preventDefault();
+                });
+            }
+
+            // Gọi ngay khi DOM ready, và cả khi mở settings modal
+            document.addEventListener('DOMContentLoaded', initMarqueeEditor);
+            // Hook vào openModal để init sau khi modal mở
+            var _origOpenModal = window.openModal;
+            window.openModal = function(id) {
+                if (_origOpenModal) _origOpenModal(id);
+                if (id === 'settingsModal') {
+                    setTimeout(initMarqueeEditor, 100);
+                }
+            };
+        })();
 
         // Đẩy state base ngay khi app khởi động để nút Back điện thoại không thoát trang
         if (!history.state || !history.state.modal) {
