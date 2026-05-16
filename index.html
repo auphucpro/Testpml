@@ -115,7 +115,7 @@
             padding: 0 44px; margin: 0 auto; user-select: none;
             text-shadow: 0 0 20px rgba(10,132,255,0.5), 0 0 40px rgba(191,90,242,0.3);
         }
-        .header-sub { font-size: 9.5px; font-weight: 600; color: var(--text-muted); margin-top: -4px; pointer-events: none; letter-spacing: 0.3px; }
+        .header-sub { font-size: 9.5px; font-weight: 600; color: var(--text-muted); margin-top: -2px; pointer-events: none; letter-spacing: 0.3px; }
 
 /* ===== TIÊU ĐỀ VÀ MŨI TÊN THU GỌN ===== */
 .header-title-wrapper {
@@ -1513,10 +1513,14 @@ svg[stroke="currentColor"], .svg-icon, .icon-btn svg, .btn-action-icon svg {
   /* ===== KHÓA NỀN KHI MỞ BẢNG (CHỐNG GIẬT NHẢY TRANG) ===== */
 body.modal-open {
     overflow: hidden !important;
-    /* Dùng touch-action để khóa cuộn trên điện thoại mà không làm nhảy trang */
-    touch-action: none !important; 
+    /* KHÔNG dùng touch-action:none vì sẽ chặn scroll bên trong bottom-sheet */
     overscroll-behavior: none !important;
     /* TUYỆT ĐỐI KHÔNG DÙNG position: fixed HAY height: 100% Ở ĐÂY */
+}
+/* Cho phép touch scroll bên trong bottom-sheet và center-modal */
+body.modal-open .bottom-sheet,
+body.modal-open .center-modal {
+    touch-action: pan-y !important;
 }
   /* Hiệu ứng sản phẩm Ghim */
 .product-card.pinned {
@@ -2212,7 +2216,8 @@ button:active, .product-card:active, .btn-submit:active, .btn-outline:active, .c
     will-change: transform;
     /* Tắt animation cũ */
     animation: none !important;
-    overflow: hidden;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
 }
 /* Handle bar iOS */
 .bottom-sheet::before {
@@ -2746,7 +2751,7 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
 /* --- A. THANH TIÊU ĐỀ (CHỮ CẦN THƠ) --- */
 /* Đang mở */
 #headerCollapsibleArea {
-    max-height: 250px !important;
+    max-height: 800px !important; /* Nới rào lên 800px để không bao giờ bị cắt chữ nữa */
     opacity: 1 !important;
     transform: translateY(0) !important;
 }
@@ -2768,7 +2773,7 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
 }
 /* Đang mở */
 .cat-drawer-panel.open { 
-    max-height: 350px !important; 
+    max-height: 500px !important; /* Nới rào danh mục lên 500px cho thoải mái */
     opacity: 1 !important; 
     transform: translateY(0) !important;
     pointer-events: auto !important;
@@ -2890,6 +2895,30 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
     flex-shrink: 0 !important; /* Cấm bóp xẹp tấm ảnh bên trong */
     min-height: 130px !important; /* Lệnh thép: Dù màn hình lùn cỡ nào cũng phải giữ đúng 130px chiều cao */
     min-width: 130px !important;
+}
+
+/* ===== ÉP BẢNG THÊM/SỬA SẢN PHẨM NỔI LÊN TRÊN CÙNG ĐỂ KHÔNG BỊ ĐÈ ===== */
+#adminModal {
+    z-index: 99999 !important; 
+}
+
+/* ===== HIỆU ỨNG CHỮ CHUYỂN MÀU (CHỈ CHUYỂN XANH - TÍM) ===== */
+.chu-chuyen-mau {
+    /* Chỉ dùng đúng 2 màu: Tím và Xanh */
+    background: linear-gradient(90deg, #BF5AF2, #1A91FF); 
+    background-size: 200% auto; /* Phóng to dải nền gấp đôi để có chỗ lướt */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+    /* Hiệu ứng lướt qua lại êm ái */
+    animation: luanChuyenXanhTim 3s ease-in-out infinite; 
+}
+
+/* Kịch bản kéo dải màu: Kéo sang phải rồi lại kéo về trái */
+@keyframes luanChuyenXanhTim {
+    0% { background-position: 0% center; }
+    50% { background-position: 100% center; }
+    100% { background-position: 0% center; }
 }
 
 </style>
@@ -3201,39 +3230,51 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
                 <span>An Toàn</span>
             </div>
         </div>
-        <div style="font-size:10px;color:rgba(255,255,255,0.22);">Ứng dụng được phát triển bởi PHUC.PRO.VN </div>
+        <div style="font-size: 10px; color: #ffffff; font-weight: bold; opacity: 0.85;">Ứng dụng được phát triển bởi PHUC.PRO.VN </div>
     </div>
 
     <script>
-    // ── PWA Install Prompt cho Android ──
-    window._pwaInstallEvent = null;
-    window.addEventListener('beforeinstallprompt', function(e) {
-        e.preventDefault();
-        window._pwaInstallEvent = e;
-        // Nút cài đặt đã hiện sẵn, không cần làm gì thêm
-    });
-    window._triggerAndroidInstall = function() {
-        if (window._pwaInstallEvent) {
-            window._pwaInstallEvent.prompt();
-            window._pwaInstallEvent.userChoice.then(function(result) {
-                if (result.outcome === 'accepted') {
-                    // Đã cài — ẩn màn hình khoá sau khi cài xong
-                    setTimeout(function() {
-                        var ls = document.getElementById('browserLockScreen');
-                        if (ls) ls.style.display = 'none';
-                    }, 1000);
+// ── PWA Install Prompt cho Android (BẢN CHỐNG LỖI 100%) ──
+window._pwaInstallEvent = null;
+window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    window._pwaInstallEvent = e;
+});
+
+window._triggerAndroidInstall = function() {
+    var btn = document.getElementById('androidInstallBtn');
+    
+    if (window._pwaInstallEvent) {
+        window._pwaInstallEvent.prompt();
+        window._pwaInstallEvent.userChoice.then(function(result) {
+            if (result.outcome === 'accepted') {
+                // 1. Khách vừa bấm Đồng ý -> Đổi chữ liền
+                if (btn) {
+                    btn.innerHTML = "Đang cài đặt... Vui lòng đợi xíu";
+                    btn.style.opacity = "0.7";
+                    btn.style.pointerEvents = "none";
                 }
-                window._pwaInstallEvent = null;
-            });
-        } else {
-            // Không có event → hiện fallback thủ công
-            var btn = document.getElementById('androidInstallBtn');
-            var fallback = document.getElementById('androidInstallFallback');
-            if (btn) btn.style.display = 'none';
-            if (fallback) fallback.style.display = 'flex';
-        }
-    };
-    </script>
+                
+                // 2. Chờ đúng 3 giây, ÉP BUỘC búng thông báo gốc của điện thoại ra
+                setTimeout(function() {
+                    alert("🎉 CÀI ĐẶT THÀNH CÔNG!\n\nVui lòng thoát hoàn toàn trình duyệt Chrome này, ra màn hình chính của điện thoại và mở biểu tượng App Phục Minh Long để bắt đầu kích hoạt!");
+                    
+                    if (btn) {
+                        btn.innerHTML = "Đã cài đặt! Hãy mở App ở màn hình chính";
+                    }
+                }, 3000);
+            }
+            window._pwaInstallEvent = null;
+        }).catch(function(err) {
+            console.log("Lỗi cài đặt PWA:", err);
+        });
+    } else {
+        var fallback = document.getElementById('androidInstallFallback');
+        if (btn) btn.style.display = 'none';
+        if (fallback) fallback.style.display = 'flex';
+    }
+};
+</script>
 
     <!-- POPUP BANNER THÔNG BÁO ĐỒNG LOẠT (ADMIN BROADCAST) -->
     <div id="globalPopupBanner" style="display:none;position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,0.75);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:20px;">
@@ -3366,7 +3407,7 @@ body.guest-mode .product-info { padding: 6px 8px 8px !important; }
                         </svg>
                     </div>
                 </div>
-                <div class="header-sub" onclick="window.handleSecretTrigger()" style="cursor: pointer; padding: 4px 0; text-align: center;">Đặt Hàng <strong style="color:white;">0965399774</strong> | PHUC.PRO.VN</div>
+                <div class="header-sub" onclick="window.handleSecretTrigger()" style="cursor: pointer; padding: 4px 0; text-align: center;">Đặt Hàng <strong style="color:white;">0965399774</strong> | <span class="chu-chuyen-mau">PHUC.PRO.VN</span></div>
             </header>
             
             <div id="retailBar" class="retail-settings-bar">
@@ -9414,8 +9455,43 @@ if(document.getElementById('pCdMin')) document.getElementById('pCdMin').value = 
             window.appConfirm('Xóa SP', 'Bạn chắc chắn muốn xóa sản phẩm này?', () => { window.products = window.products.filter(x => x.id !== window.viewingId); window.saveAndSync(); window.closeModal('detailModal'); window.renderProducts(true); window.showToast('Đã xóa!'); });
         };
 
-        document.getElementById('productForm').onsubmit = function(e) {
-    e.preventDefault(); 
+        document.getElementById('productForm').onsubmit = async function(e) {
+    e.preventDefault();
+
+    // Hàm upload ảnh lên Cloudinary — chỉ upload nếu là base64 mới, giữ nguyên nếu đã là URL
+    async function uploadToCloudinary(base64) {
+        if (!base64 || !base64.startsWith('data:')) return base64; // Đã là URL Cloudinary → giữ nguyên
+        var arr = base64.split(',');
+        var mime = arr[0].match(/:(.*?);/)[1];
+        var bstr = atob(arr[1]); var n = bstr.length;
+        var u8arr = new Uint8Array(n);
+        while (n--) u8arr[n] = bstr.charCodeAt(n);
+        var formData = new FormData();
+        formData.append('file', new Blob([u8arr], { type: mime }), 'product.jpg');
+        formData.append('upload_preset', CLOUD_PRESET);
+        var res = await fetch('https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/image/upload', {
+            method: 'POST', body: formData
+        });
+        var data = await res.json();
+        if (data.secure_url) return data.secure_url;
+        throw new Error(data.error && data.error.message ? data.error.message : 'Upload thất bại');
+    }
+
+    // Disable nút submit, hiện trạng thái đang upload
+    var submitBtn = this.querySelector('button[type="submit"]') || this.querySelector('button:last-of-type');
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Đang upload ảnh...'; }
+    window.showToast('Đang upload ảnh lên Cloudinary...');
+
+    var img1Url, img2Url;
+    try {
+        img1Url = await uploadToCloudinary(window.imgBase1);
+        img2Url = await uploadToCloudinary(window.imgBase2);
+    } catch (err) {
+        window.showToast('❌ Lỗi upload ảnh: ' + err.message);
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Lưu'; }
+        return;
+    }
+
     var pSize = document.getElementById('pSize').value; 
     var isMulti = (pSize === '30x60' || pSize === '40x80');
     
@@ -9438,8 +9514,8 @@ if(document.getElementById('pCdMin')) document.getElementById('pCdMin').value = 
                 brand: document.getElementById('pBrand').value, 
         specs: document.getElementById('pSpecs').value, 
         priceType: isMulti ? 'multi' : 'single', 
-        img1: window.imgBase1, 
-        img2: window.imgBase2,
+        img1: img1Url,   // ← URL Cloudinary (không còn là base64)
+        img2: img2Url,   // ← URL Cloudinary (không còn là base64)
         isPinned: isPinnedVal,
         cdDay: cdDayVal,
         cdHour: cdHourVal,
@@ -9462,6 +9538,7 @@ if(document.getElementById('pCdMin')) document.getElementById('pCdMin').value = 
         window.products.unshift(newProduct); 
     }
     
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Lưu'; }
     window.saveAndSync(); 
     window.closeModal('adminModal'); 
     window.renderProducts(true); 
@@ -10372,29 +10449,49 @@ if(document.getElementById('pCdMin')) document.getElementById('pCdMin').value = 
         });
     };
 
+    // Bỏ tên hãng (brand) khỏi tên SP khi ở chế độ Giá Lẻ
+    const getCleanName = function(product) {
+        if (!window.isRetailMode) return product.name;
+        let name = product.name;
+        if (product.brand && product.brand.trim()) {
+            const escaped = product.brand.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            name = name.replace(new RegExp(escaped, 'gi'), '').replace(/\s+/g, ' ').trim();
+            name = name.replace(/^[\s\-]+|[\s\-]+$/g, '').trim();
+        }
+        return name;
+    };
+
     if(p.priceType === 'multi' && p.priceMulti) {
         const midName = p.priceMulti.midType === 'Đậm' ? 'Đậm' : 'Viền';
-        // Đã xóa phần hiển thị mã dài dòng theo yêu cầu
         const pT = toBold(window.getRetailPrice(p.priceMulti.than) + 'k/m');
         const pM = toBold(window.getRetailPrice(p.priceMulti.midPrice) + 'k/m');
         const pD = toBold(window.getRetailPrice(p.priceMulti.diem) + 'k/m');
-        priceText = `🏠 ${labelKho}:\n🔸Thân: ${pT}\n🔸${midName}: ${pM}\n🔸Điểm: ${pD}`;
+        if (window.isRetailMode) {
+            priceText = `• Giá:\n  🔸Thân: ${pT}\n  🔸${midName}: ${pM}\n  🔸Điểm: ${pD}`;
+        } else {
+            priceText = `🏠 ${labelKho}:\n🔸Thân: ${pT}\n🔸${midName}: ${pM}\n🔸Điểm: ${pD}`;
+        }
     } else {
-        priceText = `🏠 ${labelKho}: ${toBold(window.getRetailPrice(p.price) + 'k/m')}`;
+        if (window.isRetailMode) {
+            priceText = `• Giá: ${toBold(window.getRetailPrice(p.price) + 'k/m')}`;
+        } else {
+            priceText = `🏠 ${labelKho}: ${toBold(window.getRetailPrice(p.price) + 'k/m')}`;
+        }
     }
 
     const shipText = window.isRetailMode ? '' : `\n🚛Giao CH/Chành: ${toBold('+' + shipFee + 'k/m')}`;
     const productLink = window.location.origin + window.location.pathname + '?id=' + p.id + '&code=' + encodeURIComponent(p.code);
     let shareText = '';
 
-    if(window.isAdmin) {
+    if (window.isRetailMode) {
+        // Chế độ Giá Lẻ: tên sạch (bỏ hãng), không link SP
+        shareText = `• ${getCleanName(p)}\n• MS: ${toBold(p.code)}\n• KT: ${toBold(p.size)}\n${priceText}`;
+    } else if(window.isAdmin) {
         const pronoun = document.getElementById('adminPronounSelect').value;
         shareText = `• ${p.name}\n• MS: ${toBold(p.code)}\n• KT: ${toBold(p.size)}\n${priceText}${shipText}\n• Dạ em gửi ${pronoun} ạ.\n\n• Link SP: ${productLink}`;
     } else {
-        // Đã thêm dòng hỏi còn hàng không dành riêng cho máy Khách Hàng
         shareText = `• ${p.name}\n• MS: ${toBold(p.code)}\n• KT: ${toBold(p.size)}\n${priceText}${shipText}\n❓ Xem này còn hàng không?\n\n• Link SP: ${productLink}`;
     }
-
     window.copyToClipboardFallback(shareText);
     try {
         if (navigator.canShare && navigator.canShare({ files: [window.preparedShareFile] })) {
@@ -11579,7 +11676,7 @@ if (!savedCode) {
         window.uploadBannerToCloud = function() {
             if (!window._bannerFileData) { window.showToast('Chọn ảnh trước!'); return; }
             var status = document.getElementById('bannerUploadStatus');
-            status.textContent = '⏳ Đang upload...';
+            status.textContent = 'Đang upload...';
             status.style.color = '#FF9F0A';
             var btn = document.getElementById('btnUploadBanner');
             if(btn) btn.disabled = true;
